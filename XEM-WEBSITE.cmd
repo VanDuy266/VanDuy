@@ -6,6 +6,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+node -p "'Xe Dien Duc Tu - phien ban ' + require('./package.json').version"
 echo Mo http://localhost:3000 tren trinh duyet may nay.
 echo Giu cua so nay mo khi xem website. Nhan Ctrl+C de dung.
 echo Mat khau quan tri tam thoi duoc tao ngau nhien cho lan xem thu.
