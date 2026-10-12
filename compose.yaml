@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      SITE_URL: https://${DOMAIN:?Set DOMAIN in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+      STORE_NAME: Xe Điện Đức Tú
+    volumes:
+      - store_data:/app/data
+    expose:
+      - "3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+volumes:
+  store_data:
+  caddy_data:
+  caddy_config:
