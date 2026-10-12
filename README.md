@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.4.0)
+# Xe Điện Đức Tú — V2 nhiều trang (2.5.0)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -50,6 +50,7 @@ Danh mục và chi tiết được tạo HTML tại máy chủ, xem được nga
 - `/admin`: tổng quan.
 - `/admin/san-pham`: giá, danh mục, mô tả, thông số, ảnh chính + tối đa 8 ảnh thêm, nguồn ảnh và tồn kho.
 - `/admin/don-hang`: thông tin đơn, phương án mua, trạng thái, số tiền cửa hàng ghi nhận; xuất CSV tối đa 500 đơn gần nhất.
+- `/admin/khach-hang`: tài khoản đã đăng ký, kênh và lịch sử đăng nhập thành công, số phiên còn hiệu lực; không hiển thị mật khẩu, token hoặc CSRF.
 - `/admin/tu-van`: hộp thư tìm kiếm/lọc; xem yêu cầu thường / trả góp; lưu trạng thái, ghi chú nội bộ và bản nháp; đăng phản hồi trên website; mở cuộc gọi hoặc Zalo để liên hệ thủ công.
 - `/admin/thanh-toan`: sổ ghi nhận thu / hoàn tiền theo chứng từ đã được nhân viên kiểm tra.
 - `/admin/cai-dat`: thông tin cửa hàng, link mạng xã hội, mức cọc và các chính sách.
@@ -193,3 +194,25 @@ Bộ xem là **chuỗi ảnh góc gốc của nhà sản xuất**, không phải
 Nguồn, nhãn gốc, ngày lấy, kích thước và SHA-256 của 36 ảnh nằm trong `catalog/viewer.json`; file gốc trong `assets/yadea-view-*`, tổng khoảng 19 MB. Không cần gọi website hãng khi xem. `product-viewer.js` chỉ ghép bộ ảnh khi đúng hãng và tên phiên bản. Khi đổi tên/brand sang mẫu khác, không tự gán bộ ảnh cũ.
 
 `npm test` chạy 10 bài, bổ sung kiểm tra nguồn/checksum, bộ góc đúng mẫu và màu được kiểm tra phía server trước khi lưu đơn. Trình duyệt kiểm tra kéo chuột/phím, tự xoay, mở rộng/Escape, đổi màu/tải lại, giỏ và đơn có màu, desktop/390px. Ảnh màn hình `docs/screenshots/v24-*` chỉ có sản phẩm công khai.
+
+## V2.5: điều hướng, tài khoản và xử lý đơn
+
+- Trang chủ có link riêng trên thanh menu, bên trong danh mục và footer; logo tiếp tục dẫn về trang chủ.
+- Icon SVG cho giỏ, yêu thích, tài khoản, tra cứu đơn, tìm kiếm, menu, gọi điện và quản trị; nút đăng nhập xã hội có biểu tượng Google/Facebook/Zalo. Bộ 360° vẫn dùng ảnh gốc. Nút nguồn ảnh đã ẩn trên giao diện khách; nguồn và checksum giữ trong dữ liệu để đối chiếu.
+- Tìm kiếm gợi ý tối đa 6 xe trong danh mục công bố, không phân biệt dấu; phím lên/xuống, Enter, Escape và nút đóng. Link dẫn đúng trang xe.
+- Bổ sung 6 mẫu: Osta 2026, iCUTE H, Vigor H, i8 H, Odora S2, Oris H; ảnh/giá/tốc độ/quãng đường tham khảo hãng nằm trong catalog/new-models.json. 6 mẫu cũ giữ giá đã đề xuất. Giá mới cần Đức Tú xác nhận trước khi nhận mua, không quảng cáo tồn kho đã có. Danh mục mặc định nay có 12 mẫu, phân trang 8 mẫu.
+- Link tel: mở trình gọi điện của điện thoại; thiết bị chọn SIM/xác nhận cuộc gọi. Website không tự gọi hoặc ép chọn SIM.
+
+### Khách hủy và theo dõi đơn
+
+Khách dùng Tài khoản (đơn gắn với tài khoản, có CSRF) hoặc Tra cứu đơn (mã + điện thoại) để hủy. Đơn mới chưa ghi nhận tiền được hủy ngay và hoàn tồn đã giữ **một lần**. Đơn đã xác nhận hoặc có khoản thu chỉ tạo yêu cầu hủy chờ shop; không tự hoàn tiền. Đơn đã giao không thể hủy bằng luồng này, dùng chính sách đổi trả.
+
+Admin thấy lý do/yêu cầu hủy và lịch sử. Chọn trạng thái Đã hủy rồi Lưu sau khi xử lý hoàn tiền, hoặc nhập phản hồi và Giữ đơn. Không giao xe khi yêu cầu hủy chưa được xử lý. Trạng thái Shop xác nhận/Giao xe và lịch sử thời điểm được hiển thị cho khách; đây là cập nhật của shop, chưa kết nối nhà vận chuyển. Đơn cũ không được dựng lại thời điểm thay đổi đã mất.
+
+### Quản lý khách hàng và kết nối xã hội
+
+/admin/khach-hang hiển thị tối đa 500 tài khoản và 20 sự kiện gần nhất mỗi tài khoản, tự làm mới 30 giây khi trang đang xem. Lưu thời điểm đăng ký và đăng nhập **thành công**, không thu thập IP/thiết bị hoặc hiển thị bí mật. Phiên còn hiệu lực không được gọi là trạng thái online. Lịch sử được ghi từ V2.5 trở đi; không tự tạo lịch sử cho tài khoản cũ. Chính sách bảo mật đã bổ sung việc ghi nhận này.
+
+/admin/cai-dat có hướng dẫn tạo ứng dụng, trạng thái và callback. Chủ cửa hàng chưa có ứng dụng/khóa: OAuth Google/Facebook/Zalo đã có adapter, nhưng chưa thể đăng nhập thật hoặc xác minh app approval/domain. Cần tạo ứng dụng tại từng nhà cung cấp, đăng ký callback đúng tên miền HTTPS, cấp ID và secret qua môi trường bảo mật; không gửi secret trong chat, không đặt trong cấu hình công khai. Đọc bảng biến/callback ở mục V2.3. Khi đủ cấu hình, khởi động lại app và kiểm thử với tài khoản được provider cho phép trước khi công bố.
+
+V2.5 vượt qua 12 bài npm test và trình duyệt desktop/390px: menu về nhà, icon, gợi ý gõ/phím, nguồn ảnh ẩn, hủy đơn tài khoản, yêu cầu hủy đơn tra cứu, admin phản hồi/giao xe, tài khoản/lịch sử đăng nhập và tel:. Ảnh v25-admin-customers dùng dữ liệu minh họa, đã ẩn email/điện thoại.

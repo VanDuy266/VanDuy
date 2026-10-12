@@ -1,0 +1,118 @@
+[
+  {
+    "brand": "Yadea",
+    "name": "Osta 2026",
+    "price": 34990000,
+    "category": "city",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-osta-2026/",
+    "title": "Yadea Osta – Xe Máy Điện Flagship Neo-Retro",
+    "image": "/assets/yadea-osta-2026-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2026/02/1280_880-Osta-2.png",
+    "sha256": "6c08ed357195b72cfe0bd376b53db1f18c59f1d2eff91c0fea991bf90c1d7ec4",
+    "retrievedAt": "2026-10-12T20:06:54.461Z",
+    "description": "Mẫu Osta 2026 trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [
+      [
+        "Nền tảng",
+        "AIGO Max"
+      ]
+    ],
+    "speed": 63,
+    "range": 180
+  },
+  {
+    "brand": "Yadea",
+    "name": "iCUTE H",
+    "price": 15490000,
+    "category": "compact",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-icute-h/",
+    "title": "YADEA iCUTE H – Xe Điện Học Sinh Nhỏ Gọn, Tiết Kiệm",
+    "image": "/assets/yadea-icute-h-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2026/03/Anh-danh-muc-san-pham.png",
+    "sha256": "a1cb1ea38f4764bea2bfb488f2bdb0c55ae20829af27b6426cf7680ea9a51e66",
+    "retrievedAt": "2026-10-12T20:06:54.869Z",
+    "description": "Mẫu iCUTE H trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [],
+    "speed": 38,
+    "range": 70
+  },
+  {
+    "brand": "Yadea",
+    "name": "Vigor H",
+    "price": 16490000,
+    "category": "city",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-vigor-h/",
+    "title": "Yadea Vigor H Nâng Cấp: Công Nghệ AIgo Thông Minh – Chân Chống Ngắt Điện An Toàn",
+    "image": "/assets/yadea-vigor-h-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2026/02/Anh-nho-danh-muc-san-pham-740x600-1.png",
+    "sha256": "3c05f640a260cc2deead548165f749c0a63df2aae86dcf77c114a86536318f12",
+    "retrievedAt": "2026-10-12T20:06:55.483Z",
+    "description": "Mẫu Vigor H trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [
+      [
+        "Hệ thống",
+        "AIGO"
+      ]
+    ],
+    "speed": 46,
+    "range": 80
+  },
+  {
+    "brand": "Yadea",
+    "name": "i8 H",
+    "price": 14490000,
+    "category": "compact",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-i8-h/",
+    "title": "YADEA i8 H – Xe Đạp Điện Cho Học Sinh, Thiết Kế Gọn Nhẹ, Pin Bền",
+    "image": "/assets/yadea-i8-h-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2026/03/Anh-nho-ben-tren-3.png",
+    "sha256": "c9a6a5a469d72eb7640ed98c56dea59c9ea90cf0cd75c924fd85adb4fa50a82c",
+    "retrievedAt": "2026-10-12T20:06:55.802Z",
+    "description": "Mẫu i8 H trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [
+      [
+        "Trang bị",
+        "AIGO AIR"
+      ]
+    ],
+    "speed": 38,
+    "range": 70
+  },
+  {
+    "brand": "Yadea",
+    "name": "Odora S2",
+    "price": 16500000,
+    "category": "city",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-odora-s2/",
+    "title": "YADEA Odora S2 – Xe Máy Điện Thời Trang Cho Nữ, Di Chuyển Nhẹ Nhàng",
+    "image": "/assets/yadea-odora-s2-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2025/09/Anh-nho-danh-muc-san-pham-1.png",
+    "sha256": "935755d50db2811a90d6b76c9f15e90ffe9737daadd96331067e8a7add59a606",
+    "retrievedAt": "2026-10-12T20:06:56.213Z",
+    "description": "Mẫu Odora S2 trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [
+      [
+        "Hệ thống",
+        "TTFAR"
+      ]
+    ],
+    "speed": 46,
+    "range": 80
+  },
+  {
+    "brand": "Yadea",
+    "name": "Oris H",
+    "price": 27490000,
+    "category": "city",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-oris-h/",
+    "title": "YADEA Oris H – Xe máy điện 120km, pin LFP bền bỉ",
+    "image": "/assets/yadea-oris-h-new.png",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2025/11/Oris-H-Anh-nho-ben-tren.png",
+    "sha256": "3252428133aa165f34fc1df5288a2a94a98f6142a3f6140ff52e548ee3ce00ed",
+    "retrievedAt": "2026-10-12T20:06:56.544Z",
+    "description": "Mẫu Oris H trong danh mục chính thức YADEA. Giá tham khảo từ hãng tại thời điểm cập nhật; Đức Tú cần xác nhận giá bán, phiên bản, màu, thông số và tình trạng cung cấp trước khi nhận mua.",
+    "specifications": [],
+    "speed": 50,
+    "range": 120
+  }
+]
