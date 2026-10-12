@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.5.0)
+# Xe Điện Đức Tú — V2 nhiều trang (2.6.0)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -7,10 +7,10 @@ Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQL
 1. Cài Node.js 24.
 2. Giải nén mã nguồn vào thư mục riêng. Nếu website cũ đang chạy, dừng cửa sổ đó trước.
 3. Nhấp đúp `XEM-WEBSITE.cmd`.
-4. Nhập mật khẩu quản trị tự chọn, tối thiểu 16 ký tự. Ký tự không hiển thị khi gõ, không được ghi vào file hay log. Ghi nhớ mật khẩu cho phiên chạy này.
+4. Nhập mật khẩu quản trị tự chọn, không để trống. Ký tự không hiển thị khi gõ, không được ghi vào file hay log. Ghi nhớ mật khẩu cho phiên chạy này.
 5. Giữ cửa sổ mở và truy cập `http://localhost:3000` trên chính máy đó. Đăng nhập quản trị tại `/admin` bằng mật khẩu vừa chọn.
 
-Mỗi lần chạy lại, nhập mật khẩu của bạn. Không mở trực tiếp index.html hoặc dùng Live Server vì các trang và API cần máy chủ Node.js. Nếu báo cổng bị sử dụng, dừng đúng cửa sổ website cũ; không kết thúc tiến trình khác tùy tiện.
+Mật khẩu admin được lưu dạng băm trong SQLite. Những lần chạy sau dùng mật khẩu đã lưu, không cần nhập lại khi khởi động. Đổi tại Admin → Cài đặt; ADMIN_PASSWORD chỉ dùng để khởi tạo lần đầu, không ghi đè mật khẩu đã đổi. Không mở trực tiếp index.html hoặc dùng Live Server vì các trang và API cần máy chủ Node.js. Nếu báo cổng bị sử dụng, dừng đúng cửa sổ website cũ; không kết thúc tiến trình khác tùy tiện.
 
 Hoặc chạy trong Terminal:
 
@@ -18,7 +18,7 @@ Hoặc chạy trong Terminal:
 npm run preview
 ```
 
-Chạy không tương tác / trên VPS: cung cấp ADMIN_PASSWORD bằng biến môi trường bảo mật rồi dùng `npm start`. PORT mặc định 3000, SITE_URL phải khớp origin trình duyệt. Khi đổi PORT, đổi SITE_URL tương ứng.
+Chạy không tương tác / trên VPS: cung cấp ADMIN_PASSWORD không để trống bằng biến môi trường bảo mật khi khởi tạo lần đầu rồi dùng `npm start`. PORT mặc định 3000, SITE_URL phải khớp origin trình duyệt. Khi đổi PORT, đổi SITE_URL tương ứng.
 
 ## Các trang và chức năng
 
@@ -216,3 +216,13 @@ Admin thấy lý do/yêu cầu hủy và lịch sử. Chọn trạng thái Đã 
 /admin/cai-dat có hướng dẫn tạo ứng dụng, trạng thái và callback. Chủ cửa hàng chưa có ứng dụng/khóa: OAuth Google/Facebook/Zalo đã có adapter, nhưng chưa thể đăng nhập thật hoặc xác minh app approval/domain. Cần tạo ứng dụng tại từng nhà cung cấp, đăng ký callback đúng tên miền HTTPS, cấp ID và secret qua môi trường bảo mật; không gửi secret trong chat, không đặt trong cấu hình công khai. Đọc bảng biến/callback ở mục V2.3. Khi đủ cấu hình, khởi động lại app và kiểm thử với tài khoản được provider cho phép trước khi công bố.
 
 V2.5 vượt qua 12 bài npm test và trình duyệt desktop/390px: menu về nhà, icon, gợi ý gõ/phím, nguồn ảnh ẩn, hủy đơn tài khoản, yêu cầu hủy đơn tra cứu, admin phản hồi/giao xe, tài khoản/lịch sử đăng nhập và tel:. Ảnh v25-admin-customers dùng dữ liệu minh họa, đã ẩn email/điện thoại.
+
+## V2.6: nhận xe, mật khẩu admin và thông báo
+
+- Admin có nút Xác nhận đơn ngay cho đơn mới; trạng thái khác vẫn dùng nút Lưu trạng thái. Các lỗi được hiển thị tại thanh trạng thái. Khách đăng nhập có thể xem lịch sử đơn riêng, yêu cầu hủy và bấm Tôi đã nhận xe sau khi shop xác nhận. Website kiểm tra quyền sở hữu/CSRF, cập nhật đã giao và ghi thời điểm khách nhận một lần. Đơn khách vãng lai tiếp tục dùng tra cứu; không tự gán đơn theo email/điện thoại chưa xác minh.
+- Mật khẩu admin không còn yêu cầu 16 ký tự, chỉ cần không để trống (giới hạn nhập 256 ký tự). Lưu salt/hash trong DB; đổi yêu cầu mật khẩu hiện tại và CSRF, đăng xuất các phiên admin khác. Khởi động lại giữ mật khẩu đã đổi; biến ADMIN_PASSWORD chỉ khởi tạo DB lần đầu. Mật khẩu khách hàng vẫn theo chính sách riêng.
+- Thanh thông báo ở mọi trang admin có số đơn mới, tư vấn mới, yêu cầu hủy và link xử lý, nhãn Có yêu cầu mới, số đếm trên tiêu đề tab. Kiểm tra mỗi 10 giây khi đang đăng nhập và trang mở; không phải push khi đóng website. Đăng xuất xóa thông tin khỏi giao diện.
+- 12 mẫu đều có ảnh chọn màu. 5 mẫu có đủ bộ góc hãng: XBULL H, i8, Osta 2026, iCUTE H, i8 H. 7 mẫu còn lại chưa có đủ bộ góc trên nguồn chính thức; giữ chọn màu, không giả lập xoay bằng ảnh khác mẫu. Khung 360° sử dụng màu mẫu hãng, các màu khác có ảnh riêng.
+- Xem [hướng dẫn kết nối mạng xã hội](HUONG-DAN-DANG-NHAP-MANG-XA-HOI.md). Chưa có App ID/Secret/tên miền được xác nhận nên chưa kiểm thử đăng nhập thật.
+
+Kiểm thử V2.6: 13 bài npm test; trình duyệt kiểm tra chọn màu 12 mẫu, 5 bộ góc, thông báo, một nút xác nhận, khách nhận xe/admin thấy trạng thái, đổi mật khẩu một ký tự rồi đăng nhập lại và dữ liệu mật khẩu sau restart.
