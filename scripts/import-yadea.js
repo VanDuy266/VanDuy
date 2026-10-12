@@ -1,0 +1,23 @@
+'use strict';
+const fs=require('node:fs');const path=require('node:path');const crypto=require('node:crypto');const {DatabaseSync}=require('node:sqlite');
+const normalize=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function official(url){const u=new URL(url);if(u.protocol!=='https:'||u.username||u.password||u.port||!(u.hostname==='yadea.com.vn'||u.hostname.endsWith('.yadea.com.vn')))throw Error('Chỉ tải URL HTTPS thuộc yadea.com.vn');return u;}
+const decode=s=>s.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+function inspectPage(html,pageUrl,model){
+ const title=decode(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||'').replace(/<[^>]*>/g,'');const key=normalize(model),year=key.match(/20\d{2}$/)?.[0],core=year?key.slice(0,-4):key;if(!normalize(title).includes(core)||(year&&!normalize(title+new URL(pageUrl).pathname).includes(year)))throw Error('Tên mẫu xe không xuất hiện trong tiêu đề trang; không tự gán ảnh');
+ const candidates=[];for(const tag of html.match(/<meta\b[^>]*>/gi)||[]){const props={};for(const m of tag.matchAll(/([\w:-]+)\s*=\s*["']([^"']*)["']/g))props[m[1].toLowerCase()]=decode(m[2]);if(props.property==='og:image'&&props.content)candidates.push(props.content);}
+ for(const tag of html.match(/<img\b[^>]*>/gi)||[]){const attrs={};for(const m of tag.matchAll(/([\w:-]+)\s*=\s*["']([^"']*)["']/g))attrs[m[1].toLowerCase()]=decode(m[2]);const src=attrs['data-src']||attrs.src;if(src&&normalize(attrs.alt||src).includes(normalize(model)))candidates.push(src);}
+ for(const value of candidates){try{const u=official(new URL(value,pageUrl));if(!/logo|favicon|icon/i.test(u.pathname))return {title,imageUrl:u.href};}catch{}}
+ throw Error('Không tìm thấy ảnh sản phẩm từ nguồn chính thức; hãy tải ảnh được xác nhận qua quản trị');
+}
+async function download(url,maxBytes){let current=official(url);for(let i=0;i<4;i++){const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(20000)});if([301,302,303,307,308].includes(r.status)){current=official(new URL(r.headers.get('location'),current));continue;}if(!r.ok)throw Error('Nguồn ảnh trả HTTP '+r.status);const chunks=[];let size=0;for await(const chunk of r.body){size+=chunk.length;if(size>maxBytes)throw Error('Nội dung vượt giới hạn tải');chunks.push(chunk);}return{bytes:Buffer.concat(chunks),url:current.href};}throw Error('Quá nhiều chuyển hướng');}
+function extension(bytes){if(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))return 'png';if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)return 'jpg';if(bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP')return 'webp';throw Error('Ảnh phải là PNG, JPEG hoặc WebP');}
+async function main(){
+ const [model,url]=process.argv.slice(2);if(!model||!url)throw Error('Dùng: node --use-env-proxy scripts/import-yadea.js "Orla" "URL-trang-san-pham-chinh-thuc" [--apply]');official(url);
+ const page=await download(url,3000000),info=inspectPage(page.bytes.toString('utf8'),page.url,model),image=await download(info.imageUrl,2000000),ext=extension(image.bytes),hash=crypto.createHash('sha256').update(image.bytes).digest('hex');
+ console.log(JSON.stringify({model,title:info.title,source:page.url,image:image.url,sha256:hash,bytes:image.bytes.length,mode:process.argv.includes('--apply')?'apply':'dry-run'},null,2));
+ if(!process.argv.includes('--apply'))return;
+ const dataDir=process.env.DATA_DIR||path.join(__dirname,'..','data'),dbPath=path.join(dataDir,'store.sqlite');if(!fs.existsSync(dbPath))throw Error('Chạy website lần đầu để khởi tạo cơ sở dữ liệu');const db=new DatabaseSync(dbPath);try{const product=db.prepare('SELECT * FROM products WHERE lower(brand)=? AND lower(name)=?').get('yadea',model.toLowerCase());if(!product)throw Error('Không tìm thấy sản phẩm trong danh mục');const file=hash.slice(0,32)+'.'+ext;const media=path.join(dataDir,'media');fs.mkdirSync(media,{recursive:true,mode:0o700});fs.writeFileSync(path.join(media,file),image.bytes,{mode:0o600});db.prepare('UPDATE products SET image=?,image_source=? WHERE id=?').run('/media/'+file,page.url,product.id);const manifest=path.join(dataDir,'image-sources.jsonl');fs.appendFileSync(manifest,JSON.stringify({productId:product.id,model,source:page.url,imageUrl:image.url,sha256:hash,importedAt:new Date().toISOString()})+'\n',{mode:0o600});console.log('Đã cập nhật ảnh sản phẩm; giá và đơn hàng được giữ nguyên.');}finally{db.close();}
+}
+if(require.main===module)main().catch(error=>{console.error(error.message);process.exitCode=1;});
+module.exports={official,inspectPage,extension,download};

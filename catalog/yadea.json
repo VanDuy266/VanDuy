@@ -1,0 +1,346 @@
+[
+  {
+    "oldName": "Xmen Neo",
+    "name": "XBULL H",
+    "price": 16000000,
+    "category": "sport",
+    "image": "/assets/yadea-xbull-h.webp",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-xbull-h/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Xbull-H.webp",
+    "title": "YADEA XBULL H - Phiên bản nâng cấp mới 2026",
+    "sha256": "c5b7d7961fe0b6a59b0708a0ec6f945b42b4d7bfb239367d0877b980ec9a676e",
+    "bytes": 54620,
+    "gallery": [],
+    "retrievedAt": "2026-10-12T18:37:05.730Z",
+    "range": 70,
+    "speed": 40,
+    "description": "Ảnh và thông tin từ YADEA XBULL H phiên bản nâng cấp 2026. Thiết kế năng động, ắc quy Graphene và kết nối YADEA AIGO. Phiên bản, màu sắc và khả năng cung cấp tại Đức Tú cần được xác nhận.",
+    "specifications": [
+      [
+        "Ắc quy",
+        "Graphene 48V22Ah"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "400 W / 1000 W"
+      ],
+      [
+        "Thời gian sạc",
+        "8–10 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "750 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "79 kg"
+      ],
+      [
+        "Cốp xe",
+        "5 lít"
+      ],
+      [
+        "Phanh trước / sau",
+        "Tang trống / tang trống"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua."
+  },
+  {
+    "oldName": "Orla",
+    "name": "Orla 2024",
+    "price": 17000000,
+    "category": "city",
+    "image": "/assets/yadea-orla-2024.png",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-orla-2024/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2024/06/orla-beige.png",
+    "title": "Xe Máy Điện YADEA Orla – Nhẹ, Êm, Chuẩn Phong Cách Đô Thị",
+    "sha256": "2667399efb9dfd631c007412a4a3d08c1ad0e6b3ed3657e036323e3d36f24d9d",
+    "bytes": 551284,
+    "gallery": [
+      "/assets/yadea-orla-2024-pink.png"
+    ],
+    "retrievedAt": "2026-10-12T18:37:05.681Z",
+    "range": 65,
+    "speed": 48,
+    "description": "Mẫu Orla trên trang sản phẩm chính thức của YADEA, đường dẫn phiên bản 2024. Thiết kế thanh lịch, cốp 17 lít và đèn LED. Xác nhận phiên bản thực tế đang cung cấp và màu xe trước khi đặt.",
+    "specifications": [
+      [
+        "Ắc quy",
+        "Graphene TTFAR 60V22Ah"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "800 W / 1700 W"
+      ],
+      [
+        "Thời gian sạc",
+        "7–8 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "760 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "108 kg"
+      ],
+      [
+        "Cốp xe",
+        "17 lít"
+      ],
+      [
+        "Phanh trước / sau",
+        "Đĩa / tang trống"
+      ],
+      [
+        "Điều kiện quãng đường tham khảo",
+        "65 kg, tốc độ 30 km/h: 65 km"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua.",
+    "gallerySources": [
+      {
+        "name": "Orla 2024",
+        "asset": "/assets/yadea-orla-2024-pink.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/orla-pink.png",
+        "sha256": "4dac7350500c92965ae3dc174064eb9879c2c4340615868445385b595c696cba",
+        "bytes": 650111
+      }
+    ]
+  },
+  {
+    "oldName": "iGo",
+    "name": "iCUTE",
+    "price": 13000000,
+    "category": "compact",
+    "image": "/assets/yadea-icute.webp",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-icute/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2023/10/iCute_1.webp",
+    "title": "YADEA iCUTE – Xe Máy Điện Dễ Thương, Nhỏ Gọn, Tiết Kiệm",
+    "sha256": "a84ba605e1a8b459cbcfe2850a4e7aaed681656782f1c63a3fe1da87754eabe2",
+    "bytes": 229148,
+    "gallery": [
+      "/assets/yadea-icute-pink.png"
+    ],
+    "retrievedAt": "2026-10-12T18:37:05.669Z",
+    "range": 77,
+    "speed": 30,
+    "description": "YADEA iCUTE có thiết kế nhỏ gọn, ắc quy Graphene TTFAR và cốp 11 lít. Thông tin tham khảo từ trang sản phẩm YADEA; phiên bản, màu xe và tồn kho tại Đức Tú cần được xác nhận.",
+    "specifications": [
+      [
+        "Ắc quy",
+        "Graphene TTFAR 48V22Ah"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "400 W / 1050 W"
+      ],
+      [
+        "Thời gian sạc",
+        "7–8 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "720 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "80 kg"
+      ],
+      [
+        "Cốp xe",
+        "11 lít"
+      ],
+      [
+        "Phanh trước / sau",
+        "Tang trống / tang trống"
+      ],
+      [
+        "Điều kiện quãng đường tham khảo",
+        "65 kg, tốc độ 30 km/h: 77 km"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua.",
+    "gallerySources": [
+      {
+        "name": "iCUTE",
+        "asset": "/assets/yadea-icute-pink.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/icute-banner-1p2pink.png",
+        "sha256": "c112f66d61032c616469453dc630c70aa497f0ef818301383954fd842d0b9341",
+        "bytes": 573285
+      }
+    ]
+  },
+  {
+    "oldName": "Ocean",
+    "name": "Ocean",
+    "price": 16000000,
+    "category": "city",
+    "image": "/assets/yadea-ocean.webp",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-ocean/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2023/10/Ocean_1.webp",
+    "title": "YADEA Ocean – Xe Máy Điện Thời Trang, Êm Mượt, Chuẩn Phong Cách Trẻ",
+    "sha256": "ab2f71dd26f19db3ee2e22839b66074e035a1e7b2a02f87813dffc30cd58eb41",
+    "bytes": 231050,
+    "gallery": [
+      "/assets/yadea-ocean-pink.png"
+    ],
+    "retrievedAt": "2026-10-12T18:37:05.478Z",
+    "range": 80,
+    "speed": 46,
+    "description": "YADEA Ocean mang phong cách thành thị, dùng ắc quy Graphene TTFAR, có cốp 18 lít và phanh đĩa trước. Thông tin được đối chiếu với trang sản phẩm YADEA, cần xác nhận phiên bản khi mua.",
+    "specifications": [
+      [
+        "Ắc quy",
+        "Graphene TTFAR 60V22Ah"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "800 W / 1600 W"
+      ],
+      [
+        "Thời gian sạc",
+        "7–8 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "710 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "93 kg"
+      ],
+      [
+        "Cốp xe",
+        "18 lít"
+      ],
+      [
+        "Phanh trước / sau",
+        "Đĩa / tang trống"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua.",
+    "gallerySources": [
+      {
+        "name": "Ocean",
+        "asset": "/assets/yadea-ocean-pink.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/ocean-pink-banner.png",
+        "sha256": "e8b77ebdfd6d556c556b427a080698ef567a080b9891f7ff3dcc90d44e987727",
+        "bytes": 573064
+      }
+    ]
+  },
+  {
+    "oldName": "Vigor",
+    "name": "Vigor 2025",
+    "price": 17000000,
+    "category": "sport",
+    "image": "/assets/yadea-vigor-2025.webp",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-vigor-2025/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2025/10/VIGOR-NANG-CAP.webp",
+    "title": "YADEA Vigor 2025 Phiên Bản Nâng Cấp – Mạnh Mẽ, Thông Minh",
+    "sha256": "8174ca51619c259483597805341640a8c4651f145d0be7dd744422ac0750de8b",
+    "bytes": 50254,
+    "gallery": [
+      "/assets/yadea-vigor-2025-black.png"
+    ],
+    "retrievedAt": "2026-10-12T18:37:05.490Z",
+    "range": 0,
+    "speed": 46,
+    "description": "YADEA Vigor phiên bản nâng cấp 2025 có hai lựa chọn ắc quy theo thông tin hãng: Graphene TTFAR và Thiên Năng. Quãng đường tham khảo 60–70 km tùy phiên bản; cần xác nhận đúng loại ắc quy, màu và khả năng cung cấp.",
+    "specifications": [
+      [
+        "Ắc quy",
+        "Graphene TTFAR 60V22Ah hoặc Thiên Năng 60V20Ah"
+      ],
+      [
+        "Quãng đường tham khảo",
+        "60–70 km, tùy phiên bản ắc quy"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "800 W / 1500 W"
+      ],
+      [
+        "Thời gian sạc",
+        "7–8 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "740 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "93 kg"
+      ],
+      [
+        "Cốp xe",
+        "18 lít"
+      ],
+      [
+        "Phanh trước / sau",
+        "Đĩa / tang trống"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua.",
+    "gallerySources": [
+      {
+        "name": "Vigor 2025",
+        "asset": "/assets/yadea-vigor-2025-black.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2025/09/1410-Vigor-Nang-Cap-den.png",
+        "sha256": "d18dbbe269fbcbcdaa201d4529067e2ace2c81dfdeb511eccaabefd605ae5806",
+        "bytes": 528316
+      }
+    ]
+  },
+  {
+    "oldName": "M6i",
+    "name": "i8",
+    "price": 13000000,
+    "category": "compact",
+    "image": "/assets/yadea-i8.webp",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-i8/",
+    "imageUrl": "https://www.yadea.com.vn/wp-content/uploads/2023/11/i8.webp",
+    "title": "YADEA i8 – Xe Đạp Điện Cho Học Sinh, Thiết Kế Gọn Nhẹ, Pin Bền",
+    "sha256": "4a76743d88c36cc0c005147e664678704592c7dc8f326cec6aa05d70ad9b26dc",
+    "bytes": 58310,
+    "gallery": [],
+    "retrievedAt": "2026-10-12T18:37:05.475Z",
+    "range": 70,
+    "speed": 35,
+    "description": "YADEA i8 được giới thiệu là xe đạp điện nhỏ gọn, trang bị ắc quy Graphene TTFAR và mở khóa NFC. Thông tin tham khảo từ hãng, cần xác nhận phiên bản và màu xe tại Đức Tú trước khi mua.",
+    "specifications": [
+      [
+        "Loại xe theo giới thiệu hãng",
+        "Xe đạp điện"
+      ],
+      [
+        "Ắc quy",
+        "Graphene TTFAR 48V22Ah"
+      ],
+      [
+        "Công suất danh định / tối đa",
+        "350 W / 990 W"
+      ],
+      [
+        "Thời gian sạc",
+        "7–8 giờ"
+      ],
+      [
+        "Chiều cao yên",
+        "730 mm"
+      ],
+      [
+        "Khối lượng bản thân",
+        "67 kg"
+      ],
+      [
+        "Phanh trước / sau",
+        "Tang trống / tang trống"
+      ]
+    ],
+    "specificationNote": "Thông số tham khảo từ YADEA trong điều kiện thử nghiệm tiêu chuẩn; quãng đường thực tế phụ thuộc tải trọng, điều kiện đường, thói quen sử dụng và tình trạng ắc quy. Xác nhận đúng phiên bản trước khi mua."
+  }
+]

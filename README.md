@@ -1,41 +1,115 @@
-# Xe Điện Đức Tú
+# Xe Điện Đức Tú — V2 nhiều trang (2.1.0)
 
-Website bán xe máy điện: giao diện tiếng Việt responsive, danh mục Yadea từ cơ sở dữ liệu, tìm kiếm/lọc ngân sách và kiểu xe/sắp xếp, chi tiết sản phẩm có đường dẫn chia sẻ, yêu thích, so sánh tối đa 3 xe, giỏ hàng, gửi yêu cầu đặt xe và tư vấn, tra cứu trạng thái bằng mã đơn + điện thoại, quản trị sản phẩm/chính sách/tồn kho/đơn hàng và xuất CSV. Node.js 24 và SQLite tích hợp, không cần thư viện bên ngoài.
+Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
-## Chạy phát triển
+## Chạy trên Windows bằng VS Code hoặc trực tiếp
 
-Trên Windows: cài Node.js 24, giải nén mã nguồn và nhấp đúp `XEM-WEBSITE.cmd`, rồi mở `http://localhost:3000` trên chính máy đó. Giữ cửa sổ lệnh mở. Cách này tạo mật khẩu quản trị ngẫu nhiên cho phiên xem thử; để quản trị, tự đặt biến ADMIN_PASSWORD và chạy theo hướng dẫn bên dưới. Danh mục Yadea mặc định có thể xem ngay; nhận yêu cầu vẫn khóa khi thiếu thông tin cửa hàng.
+1. Cài Node.js 24.
+2. Giải nén mã nguồn vào thư mục riêng. Nếu website cũ đang chạy, dừng cửa sổ đó trước.
+3. Nhấp đúp `XEM-WEBSITE.cmd`.
+4. Nhập mật khẩu quản trị tự chọn, tối thiểu 16 ký tự. Ký tự không hiển thị khi gõ, không được ghi vào file hay log. Ghi nhớ mật khẩu cho phiên chạy này.
+5. Giữ cửa sổ mở và truy cập `http://localhost:3000` trên chính máy đó. Đăng nhập quản trị tại `/admin` bằng mật khẩu vừa chọn.
+
+Mỗi lần chạy lại, nhập mật khẩu của bạn. Không mở trực tiếp index.html hoặc dùng Live Server vì các trang và API cần máy chủ Node.js. Nếu báo cổng bị sử dụng, dừng đúng cửa sổ website cũ; không kết thúc tiến trình khác tùy tiện.
+
+Hoặc chạy trong Terminal:
 
 ```sh
-cd /workspace/VanDuy
-# Đặt ADMIN_PASSWORD bằng secret của môi trường, tối thiểu 16 ký tự.
-STORE_NAME='Xe Điện Đức Tú' npm start
+npm run preview
 ```
 
-Mặc định cổng 3000. Nếu dùng cổng khác, đặt PORT và SITE_URL tương ứng. Trình duyệt phải mở đúng origin SITE_URL (mặc định http://localhost:3000). Không dùng server tĩnh Python: website cần API Node.js.
+Chạy không tương tác / trên VPS: cung cấp ADMIN_PASSWORD bằng biến môi trường bảo mật rồi dùng `npm start`. PORT mặc định 3000, SITE_URL phải khớp origin trình duyệt. Khi đổi PORT, đổi SITE_URL tương ứng.
+
+## Các trang và chức năng
+
+| Đường dẫn | Chức năng |
+|---|---|
+| `/` | Trang chủ và xe gợi ý, dẫn đến các trang chức năng |
+| `/xe-dien` | Danh mục, tìm kiếm, lọc kiểu xe / ngân sách, sắp xếp, phân trang |
+| `/xe/ID/ten-xe` | Trang riêng từng xe: ảnh, mô tả, thông số, đặt xe, đặt cọc, trả góp |
+| `/gio-hang` | Chỉnh số lượng, xóa xe, xem tổng tiền |
+| `/dat-hang` | Thông tin nhận xe, phương án mua và đồng ý xử lý dữ liệu |
+| `/dat-hang/hoan-tat` | Mã yêu cầu đã được lưu; chưa xác nhận giao xe / đã trả tiền |
+| `/dat-coc` | Quy trình đặt cọc và chọn xe để gửi yêu cầu |
+| `/tra-gop` | Yêu cầu tư vấn xe, kỳ hạn và tiền trả trước mong muốn |
+| `/thanh-toan` | Giải thích thanh toán khi nhận xe, đặt cọc, trạng thái cổng online |
+| `/tra-cuu` | Tra cứu bằng mã đơn + điện thoại, gồm trạng thái và tiền đã ghi nhận |
+| `/yeu-thich` | Danh sách xe quan tâm, lưu trên trình duyệt |
+| `/so-sanh` | So sánh tối đa 3 xe trên trang riêng |
+| `/lien-he` | Hotline, link Zalo / Facebook / Messenger / TikTok và form tư vấn |
+| `/cam-nang` | Danh sách hướng dẫn, mỗi bài có đường dẫn riêng |
+| `/chinh-sach/*` | Các trang giao xe, đổi trả, bảo hành, bảo mật |
+
+Danh mục và chi tiết được tạo HTML tại máy chủ, xem được ngay cả khi tắt JavaScript. Giỏ hàng, yêu thích, so sánh và gửi biểu mẫu cần JavaScript. Link chi tiết cũ `?product=ID` được chuyển đến trang xe tương ứng.
+
+## Quản trị theo từng trang
+
+- `/admin`: tổng quan.
+- `/admin/san-pham`: giá, danh mục, mô tả, thông số, ảnh chính + tối đa 8 ảnh thêm, nguồn ảnh và tồn kho.
+- `/admin/don-hang`: thông tin đơn, phương án mua, trạng thái, số tiền cửa hàng ghi nhận; xuất CSV tối đa 500 đơn gần nhất.
+- `/admin/tu-van`: yêu cầu tư vấn thường / trả góp, mẫu xe, kỳ hạn, tiền trả trước mong muốn.
+- `/admin/thanh-toan`: sổ ghi nhận thu / hoàn tiền theo chứng từ đã được nhân viên kiểm tra.
+- `/admin/cai-dat`: thông tin cửa hàng, link mạng xã hội, mức cọc và các chính sách.
+
+Một tài khoản quản trị, phiên 8 giờ, cookie HttpOnly/SameSite; phiên mất khi máy chủ khởi động lại. Mật khẩu lấy từ môi trường, không có mật khẩu mặc định trong mã nguồn.
+
+## Đặt hàng, đặt cọc và trả góp thực tế
+
+Yêu cầu đặt xe được lưu vào SQLite và xuất hiện ở trang quản trị. Cửa hàng cần kiểm tra đơn mới và liên hệ xác nhận giá, phiên bản, phí giao. Website không tự gửi Zalo, Messenger, SMS hoặc email.
+
+- Khi nhận xe: gửi yêu cầu, cửa hàng xác nhận rồi thỏa thuận thanh toán / giao xe.
+- Đặt cọc: chưa đặt mức tiền mặc định vì chủ cửa hàng chưa cung cấp. Quản trị nhập mức cọc đề xuất và điều kiện hoàn/hủy. Backend tính mức cọc từ cấu hình, không tin số tiền do trình duyệt gửi. Nếu mức cọc bằng 0, lưu yêu cầu nhưng chờ xác nhận số tiền.
+- Trả góp: ghi nhận nhu cầu và kỳ hạn mong muốn. Chưa có đơn vị tài chính / lãi suất được xác nhận, không quảng cáo 0%, tính khoản trả tháng hoặc tự duyệt hồ sơ.
+- Thanh toán online: chủ cửa hàng xác nhận chưa có tài khoản merchant. Hiện chưa tích hợp VNPay/MoMo hoặc thu tiền qua cổng. Lựa chọn online bị khóa và API không nhận phương án không được hỗ trợ. Muốn bật cần chọn nhà cung cấp, có tài khoản merchant, khóa qua kênh bảo mật, HTTPS, callback/IPN xác thực, đối soát, hoàn tiền và thử giao dịch trước khi vận hành.
+
+Các ghi nhận thu/hoàn hiện là thao tác của nhân viên **sau khi kiểm tra chứng từ**, không phải bằng chứng từ ngân hàng hay cổng thanh toán. API quản trị yêu cầu phiên và CSRF; không thể đổi trạng thái tiền qua query string hoặc dữ liệu khách gửi. Ghi nhận có mã chống trùng, chặn khoản thu vượt tổng, hoàn vượt tiền đã ghi nhận và hủy đơn còn tiền chưa hoàn.
+
+Khi nhập tồn kho thật, hệ thống giữ xe lúc tiếp nhận yêu cầu và hoàn tồn khi hủy. Tồn kho để trống nghĩa là cần cửa hàng xác nhận. Đơn giao/hủy không mở lại; hủy lặp không hoàn kho hai lần. Chủ cửa hàng cần xử lý yêu cầu tồn đọng để tránh giữ xe quá lâu.
+
+## Mạng xã hội và ảnh thật Yadea
+
+Hai hotline do chủ cửa hàng cung cấp: **0326 262 859**, **0866 975 540**. Địa chỉ khu vực: Khu phố 6, phường Dương Đông, Phú Quốc. Điền địa chỉ đường cụ thể và tên pháp lý khi có thông tin chính thức.
+
+Chủ cửa hàng chưa cung cấp URL Zalo/Facebook/Messenger/TikTok: các mục chưa có URL hiển thị “Chưa cập nhật”, không gán tài khoản giả. Điền link HTTPS chính thức tại `/admin/cai-dat`; backend kiểm tra đúng hostname từng dịch vụ. Đây là liên kết mở kênh tư vấn, không phải bot gửi tin hoặc tích hợp API mạng xã hội.
+
+**Đã tải ảnh sản phẩm chính thức từ website YADEA**, qua tuyến proxy hỗ trợ và kiểm tra HTTP 200. Danh mục V2 sử dụng XBULL H, Orla 2024, iCUTE, Ocean, Vigor 2025 và i8; có thêm ảnh màu cho Orla, iCUTE, Ocean, Vigor. Mỗi xe có permalink nguồn; `catalog/yadea.json` ghi URL ảnh, tiêu đề nguồn, SHA-256 và thời điểm tải. File gốc giữ nguyên, không dùng AI sửa ảnh xe. Ảnh lấy từ website chính thức, không tự đăng nhập Facebook/TikTok.
+
+Giữ các mức giá đề xuất 13/16/17 triệu theo yêu cầu chủ cửa hàng; ảnh và thông số hãng không chứng minh giá bán này. Thông số được đối chiếu trang sản phẩm, có chú thích điều kiện thử nghiệm và phiên bản. Vigor có hai loại ắc quy nên hiển thị khoảng 60–70 km thay vì tự chọn một giá trị. Khi nâng cấp, chỉ thay mẫu demo nguyên trạng chưa được đặt hàng; giữ các ảnh, giá, mô tả đã chỉnh và đơn cũ.
+
+Các miền `yadea.com.vn`, `*.yadea.com.vn`, `www.facebook.com` đã được lưu trong bản nháp cấu hình môi trường; native Node dùng `--use-env-proxy` để kiểm tra nguồn. Không cần kết nối mạng hãng để hiển thị ảnh đã đóng gói sẵn.
+
+Có hai cách thay ảnh:
+
+1. Tải ảnh xe đã xác nhận từ bài đăng Yadea về máy, vào quản trị Sản phẩm, chọn ảnh chính / bộ ảnh, điền permalink nguồn và lưu. Không thể tự lấy Facebook/TikTok khi cần đăng nhập hoặc bị chặn truy cập.
+2. Nhập ảnh từ trang sản phẩm chính thức Yadea, nếu máy có quyền truy cập:
 
 ```sh
-npm test
+npm run import:yadea -- "Orla" "URL-TRANG-SAN-PHAM-YADEA"
+# Sau khi kiểm tra nguồn và đúng phiên bản:
+npm run import:yadea -- "Orla" "URL-TRANG-SAN-PHAM-YADEA" --apply
 ```
 
-Quản trị ở đường dẫn `/admin`. Mật khẩu lấy từ ADMIN_PASSWORD, không có mật khẩu mặc định. Phiên quản trị hết hạn sau 8 giờ và mất khi server khởi động lại. Dữ liệu ở `data/store.sqlite` hoặc DATA_DIR. Không chạy nhiều bản app chung file SQLite.
+Helper mặc định chỉ kiểm tra, giới hạn HTTPS thuộc yadea.com.vn, kiểm tra tiêu đề có tên mẫu, không tải logo hoặc trang sai mẫu, không tắt TLS. Chỉ nhận PNG/JPEG/WebP ≤2 MB, lưu SHA-256 và nguồn trong `data/image-sources.jsonl`. `--apply` cập nhật ảnh cho đúng sản phẩm, giữ giá và đơn hàng. Parser/validation và một lần tải thử Orla từ nguồn thật đã được kiểm tra; bộ ảnh đóng gói đã đối chiếu từng trang và checksum. Helper không hỗ trợ tự đăng nhập mạng xã hội.
 
-## Triển khai lên tên miền trên VPS
+Giá 13/16/17 triệu là mức chủ cửa hàng đề xuất, chưa phải báo giá chính thức Yadea. Các thông số tham khảo từ hãng cần đối chiếu đúng phiên bản đang bán; thông số chưa rõ hiển thị “Đang cập nhật”. Poster giảm 500 nghìn–2 triệu chưa được áp dụng vì thiếu thời hạn và xe áp dụng.
 
-Yêu cầu VPS Linux có Docker Engine và Docker Compose plugin; tên miền và quyền sửa DNS.
+## Triển khai tên miền / VPS
 
-1. Đưa kho mã này lên VPS.
-2. Trỏ bản ghi A của tên miền tới IPv4 VPS. Chỉ thêm AAAA nếu VPS hỗ trợ IPv6. Nếu dùng www, cấu hình riêng DNS và Caddy. Mở TCP 80/443; app 3000 không công bố ra Internet.
-3. Sao chép `.env.example` thành `.env`, đặt DOMAIN là hostname không có https/path; đặt ADMIN_PASSWORD bằng secret ngẫu nhiên, tối thiểu 16 ký tự. Giữ `.env` chỉ chủ máy đọc được (`chmod 600 .env`). Có thể tạo secret bằng `openssl rand -hex 32`; không gửi secret trong chat.
-4. Chạy `docker compose up -d --build`. Caddy tự cấp/gia hạn HTTPS khi DNS và cổng đúng. Kiểm tra `docker compose ps`, `docker compose logs --tail=100 app caddy`, và HTTP 200 của `https://TEN-MIEN/api/health`.
-5. Đăng nhập `https://TEN-MIEN/admin`. Điền số điện thoại, địa chỉ, tên pháp lý, đăng ký kinh doanh, email và chính sách thật. Sửa giá/thông số rồi công bố từng xe. Danh mục Yadea mặc định đã hiển thị để xem giao diện, dùng giá đề xuất của chủ cửa hàng. Kiểm tra và chỉnh sửa trước khi bán. Nhận đơn bị khóa khi thiếu điện thoại, địa chỉ hoặc tên pháp lý.
-6. Tự gửi một đơn thử và một yêu cầu tư vấn; xác nhận xuất hiện trong quản trị. Hủy đơn thử. Kiểm tra trên điện thoại.
+VPS Linux cần Docker Engine + Docker Compose plugin. Có tên miền và quyền sửa DNS:
 
-Không chạy `docker compose down -v` vì sẽ xóa dữ liệu. Chưa triển khai lên mạng trong môi trường Codex; cần VPS/tên miền thật để kiểm tra HTTPS và DNS.
+1. Đưa mã nguồn lên VPS. Trỏ A đến IPv4 VPS; chỉ thêm AAAA nếu có IPv6 hoạt động. Mở TCP 80/443. Không công bố port 3000 ra Internet.
+2. Copy `.env.example` thành `.env`, đặt DOMAIN (hostname, không https/path) và ADMIN_PASSWORD ngẫu nhiên ≥16 ký tự. Giữ `.env` chỉ chủ máy đọc (`chmod 600 .env`); không commit hoặc gửi khóa trong chat.
+3. Chạy `docker compose up -d --build`. Caddy tự cấp/gia hạn HTTPS khi DNS và cổng đúng.
+4. Kiểm tra `docker compose ps`, `docker compose logs --tail=100 app caddy` và HTTP 200 ở `/api/health` trên miền thật.
+5. Điền thông tin cửa hàng, các mạng xã hội, chính sách, giá/thông số và ảnh thật. Gửi đơn thử, tra cứu, kiểm tra trong quản trị, hủy đơn thử.
 
-## Sao lưu và phục hồi
+V2 hiện chưa được triển khai tên miền trong Codex vì chưa có VPS/tên miền. Chưa kiểm tra giao dịch cổng online vì chưa có merchant. Không gọi bản này đã thu tiền online.
 
-Sao lưu cả thư mục ảnh `/app/data/media` cùng với database. Sao lưu SQLite phải dùng API SQLite để bao gồm dữ liệu WAL, không copy riêng file DB đang chạy:
+## Sao lưu / khôi phục
+
+Dữ liệu và ảnh ở `data/` hoặc DATA_DIR, bị Git bỏ qua. Docker dùng volume `store_data`; không chạy `docker compose down -v` vì sẽ xóa dữ liệu.
+
+SQLite đang chạy cần backup cả WAL qua API, không copy riêng DB:
 
 ```sh
 mkdir -p backups
@@ -47,41 +121,24 @@ docker compose exec -T app node -e "require('node:fs').unlinkSync('/app/data/bac
 chmod 600 backups/store.sqlite
 ```
 
-Chuyển backup đến nơi riêng có kiểm soát truy cập, không vào Git. Với bản app dừng, phục hồi backup đã kiểm tra vào volume `/app/data/store.sqlite` (UID/GID node 1000), dọn WAL/SHM cũ của bản DB được thay thế, rồi khởi động lại. Kiểm tra đơn hàng/sản phẩm sau phục hồi. Thực hành phục hồi ở môi trường riêng trước khi cần dùng.
+Nếu đã nhập ảnh từ helper, sao lưu thêm `image-sources.jsonl`. Chuyển backup đến nơi riêng có kiểm soát truy cập, không vào Git. Dừng app trước khi phục hồi DB vào volume `/app/data/store.sqlite` (UID/GID node 1000), phục hồi media, dọn WAL/SHM cũ của DB được thay thế rồi khởi động. Kiểm tra sản phẩm, đơn, sổ thu/hoàn. Thực hành phục hồi ở môi trường riêng trước khi cần dùng.
 
-## Giới hạn vận hành cần biết
+## Kiểm thử và giới hạn
 
-- Đây là yêu cầu đặt xe, thanh toán khi nhận xe sau xác nhận. Không có cổng thanh toán, email/SMS tự động hoặc đồng bộ tồn kho. Quản trị phải kiểm tra đơn mới; không thu tiền trực tuyến.
-- Có chức năng tải ảnh xe thật trong quản trị. Banner và hình xe mặc định là minh họa tạo bằng AI dùng chung, không phải ảnh chụp chính thức của từng mẫu Yadea; cần ảnh thực tế được phép sử dụng và dữ liệu chính thức trước khi quảng bá bán hàng. Giá 13, 16 và 17 triệu do chủ cửa hàng yêu cầu, chưa phải báo giá chính thức của Yadea. Tên phiên bản và thông số cần xác nhận; các thông số chưa rõ để 0 và giao diện hiển thị “Đang cập nhật”.
-- Chính sách có thể chỉnh trong quản trị, cần chủ cửa hàng xác nhận. Cần hoàn thiện nghĩa vụ công bố/đăng ký website, chính sách lưu giữ dữ liệu và quy trình xử lý yêu cầu thông tin theo hoạt động kinh doanh thực tế.
-- Một tài khoản quản trị; giới hạn request theo địa chỉ kết nối. Khi qua reverse proxy, các khách có thể cùng chia sẻ hạn mức; cấu hình này ưu tiên an toàn và phù hợp lưu lượng nhỏ. Cần đánh giá lại trước khi tăng quy mô.
-- Danh sách quản trị hiển thị 500 đơn và 500 yêu cầu gần nhất; dữ liệu cũ vẫn được giữ trong DB.
-- Biến môi trường chỉ khởi tạo thông tin cửa hàng lần đầu; sau đó chỉnh qua quản trị. Dữ liệu khách hàng phải được bảo vệ và sao lưu.
+```sh
+npm test
+```
 
-## Bản nâng cấp giao diện bán lẻ
+5 kiểm thử tích hợp/validation hiện bao phủ: xác thực/CSRF, upload raster, lưu đơn và dữ liệu sau khởi động lại, giữ/hoàn tồn, chống trùng, nguồn ảnh, các trang riêng, escaping HTML, yêu cầu cọc/trả góp, ghi nhận thu/hoàn và quyền truy cập, không giả thanh toán thành công, checksum ảnh chính thức và giữ nguyên đơn / sản phẩm đã được đặt trước nâng cấp.
 
-- Yadea Xmen Neo và Ocean: giá đề xuất 16.000.000đ.
-- Yadea Orla và Vigor: giá đề xuất 17.000.000đ.
-- Yadea iGo và M6i: giá đề xuất 13.000.000đ.
-- Mức giá do yêu cầu chủ cửa hàng, không được xác nhận từ hãng. Ảnh mặc định là hình minh họa; có thể tải ảnh xe thật trong quản trị.
-- Nâng cấp thêm danh mục một lần bằng migration, giữ sản phẩm đã chỉnh sửa, ảnh thật, giá riêng và đơn hàng cũ. Chỉ ẩn các mục demo nguyên trạng của bản trước.
-- Tồn kho để trống: cần cửa hàng xác nhận, không tự giới hạn theo một con số giả. Khi nhập tồn kho thật, hệ thống giữ xe khi nhận yêu cầu và hoàn lại khi hủy. Hủy lặp lại không hoàn kho hai lần; đơn giao/hủy không thể mở lại.
-- Tra cứu chỉ trả mã đơn, trạng thái, sản phẩm, tổng tiền và ngày gửi; không trả địa chỉ hoặc số điện thoại.
-- Xuất CSV từ quản trị hiển thị tối đa 500 đơn gần nhất. Hãy bảo vệ file vì có thông tin khách hàng.
-- Chưa có tài khoản khách hàng, đánh giá xác minh, thanh toán online, trả góp hoặc tích hợp vận chuyển. Các chức năng này cần triển khai riêng và dịch vụ thật trước khi có thể khẳng định tương đương toàn bộ hệ thống CellphoneS/TGDD.
+Luồng trình duyệt đã kiểm tra trên desktop và 390px: SSR không JavaScript, trang xe riêng, bộ lọc, giỏ hàng, yêu thích/so sánh, đặt cọc, xác nhận tiếp nhận, tra cứu, tư vấn trả góp, quản trị từng trang, CSV, ghi nhận khoản thu và trạng thái công khai. Không có lỗi JavaScript.
 
-## Hình chụp website thực tế
+Một phiên bản app / một DB SQLite. Rate limit theo địa chỉ kết nối; khi qua Caddy, khách có thể chia sẻ hạn mức. Danh sách quản trị tối đa 500 mục gần nhất. Chưa có tài khoản khách hàng, thông báo tự động, hãng vận chuyển, cổng thanh toán hoặc đối tác trả góp. Các khả năng đó cần dịch vụ/tài khoản thật và kiểm thử riêng, không thể coi là tương đương toàn bộ hệ thống CellphoneS/TGDD.
 
-Ảnh chụp trong trình duyệt, danh mục mặc định và chưa nhận đơn:
+## Ảnh chụp các trang V2
 
-![Giao diện desktop](docs/screenshots/home-preview.png)
+![Trang chủ V2](docs/screenshots/v2-home.png)
 
-[Xem toàn bộ trang desktop](docs/screenshots/home-desktop.png) · [Xem giao diện điện thoại](docs/screenshots/home-mobile.png) · [Xem chi tiết sản phẩm](docs/screenshots/product-detail.png)
+[Danh mục](docs/screenshots/v2-catalog.png) · [Trang riêng xe](docs/screenshots/v2-product.png) · [Giỏ hàng](docs/screenshots/v2-cart.png) · [Đặt xe / cọc](docs/screenshots/v2-checkout.png) · [Trả góp](docs/screenshots/v2-installment.png) · [Liên hệ](docs/screenshots/v2-contact.png) · [Điện thoại](docs/screenshots/v2-mobile.png) · [Quản trị sản phẩm](docs/screenshots/v2-admin-products.png)
 
-Ảnh được chụp với dữ liệu danh mục, không có thông tin khách hàng hoặc mật khẩu.
-
-## Nhận diện cửa hàng — phiên bản 2.0.2
-
-Logo Đức Tú Phú Quốc được chuẩn bị từ ảnh chủ cửa hàng cung cấp, xử lý nền bằng công cụ ảnh AI. Header, footer, quản trị và favicon sử dụng cùng nhận diện xanh navy/vàng. Hai số liên hệ mặc định: 0326 262 859 và 0866 975 540; địa chỉ khu vực: Khu phố 6, phường Dương Đông, Phú Quốc. Có thể chỉnh thông tin trong quản trị. Migration chỉ điền các trường liên hệ còn trống, giữ thông tin người dùng đã nhập. Tên pháp lý và địa chỉ đường cụ thể vẫn cần xác nhận.
-
-Poster Back to School được cung cấp nhưng chương trình giảm 500.000đ–2 triệu chưa áp dụng vào giá do chưa có danh sách xe, điều kiện và thời hạn được xác nhận.
+Ảnh chụp giao diện với danh mục mặc định, biểu mẫu khách hàng trống, không có mật khẩu hoặc thông tin khách hàng thật.

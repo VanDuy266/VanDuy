@@ -6,9 +6,8 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node -p "'Xe Dien Duc Tu - phien ban ' + require('./package.json').version"
-echo Mo http://localhost:3000 tren trinh duyet may nay.
+node -p "'Xe Dien Duc Tu - V2, phien ban ' + require('./package.json').version"
+echo Ban se chon mat khau quan tri cua minh. Ghi nho de dang nhap tai /admin.
 echo Giu cua so nay mo khi xem website. Nhan Ctrl+C de dung.
-echo Mat khau quan tri tam thoi duoc tao ngau nhien cho lan xem thu.
-node -e "process.env.ADMIN_PASSWORD=require('node:crypto').randomBytes(32).toString('hex');require('./server.js')"
+node launch.js
 pause

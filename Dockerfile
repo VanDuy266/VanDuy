@@ -1,7 +1,10 @@
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/app/data
 WORKDIR /app
-COPY --chown=node:node package.json server.js index.html app.js style.css retail.css brand.css admin.html admin.js policies.html policies.js ./
+COPY --chown=node:node package.json server.js pages.js commerce.js launch.js index.html shop.js style.css retail.css brand.css v2.css admin.html admin.js ./
+COPY --chown=node:node admin-pages ./admin-pages
+COPY --chown=node:node scripts ./scripts
+COPY --chown=node:node catalog ./catalog
 COPY --chown=node:node assets ./assets
 RUN mkdir /app/data && chown node:node /app/data
 USER node
