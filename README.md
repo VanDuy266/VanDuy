@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.1.0)
+# Xe Điện Đức Tú — V2 nhiều trang (2.2.0)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -34,6 +34,7 @@ Chạy không tương tác / trên VPS: cung cấp ADMIN_PASSWORD bằng biến 
 | `/tra-gop` | Yêu cầu tư vấn xe, kỳ hạn và tiền trả trước mong muốn |
 | `/thanh-toan` | Giải thích thanh toán khi nhận xe, đặt cọc, trạng thái cổng online |
 | `/tra-cuu` | Tra cứu bằng mã đơn + điện thoại, gồm trạng thái và tiền đã ghi nhận |
+| `/tra-cuu-tu-van` | Tra cứu phản hồi tư vấn bằng mã yêu cầu + số điện thoại |
 | `/yeu-thich` | Danh sách xe quan tâm, lưu trên trình duyệt |
 | `/so-sanh` | So sánh tối đa 3 xe trên trang riêng |
 | `/lien-he` | Hotline, link Zalo / Facebook / Messenger / TikTok và form tư vấn |
@@ -47,9 +48,13 @@ Danh mục và chi tiết được tạo HTML tại máy chủ, xem được nga
 - `/admin`: tổng quan.
 - `/admin/san-pham`: giá, danh mục, mô tả, thông số, ảnh chính + tối đa 8 ảnh thêm, nguồn ảnh và tồn kho.
 - `/admin/don-hang`: thông tin đơn, phương án mua, trạng thái, số tiền cửa hàng ghi nhận; xuất CSV tối đa 500 đơn gần nhất.
-- `/admin/tu-van`: yêu cầu tư vấn thường / trả góp, mẫu xe, kỳ hạn, tiền trả trước mong muốn.
+- `/admin/tu-van`: hộp thư tìm kiếm/lọc; xem yêu cầu thường / trả góp; lưu trạng thái, ghi chú nội bộ và bản nháp; đăng phản hồi trên website; mở cuộc gọi hoặc Zalo để liên hệ thủ công.
 - `/admin/thanh-toan`: sổ ghi nhận thu / hoàn tiền theo chứng từ đã được nhân viên kiểm tra.
 - `/admin/cai-dat`: thông tin cửa hàng, link mạng xã hội, mức cọc và các chính sách.
+
+Sản phẩm và cài đặt có thanh **Lưu thay đổi** cố định trên cùng và thông báo thời điểm lưu. Khi sửa xe, thông tin vẫn giữ trong biểu mẫu sau khi lưu; tạo xe mới trả lại ID để lưu tiếp không nhân bản sản phẩm. Đơn hàng phải bấm **Lưu trạng thái**, chọn danh sách không tự ghi dữ liệu. Thay đổi chưa lưu sẽ được cảnh báo trước khi rời trang.
+
+Hộp thư và tổng quan cập nhật mỗi 30 giây khi trang đang mở và không có chỉnh sửa chưa lưu. Khách nhận mã sau khi gửi tư vấn, rồi xem phản hồi tại `/tra-cuu-tu-van`. **Lưu nháp** không đăng nội dung; **Đăng phản hồi cho khách** lưu lịch sử công khai riêng cho mã + điện thoại đó. Ghi chú nội bộ, bản nháp và thông tin cá nhân không được trả về API tra cứu. Phản hồi chống trùng theo khóa gửi, giữ lại sau khi khởi động lại. Chưa có thông báo đẩy, SMS/email/Zalo tự động; khách cần mở trang tra cứu hoặc nhân viên liên hệ thủ công.
 
 Một tài khoản quản trị, phiên 8 giờ, cookie HttpOnly/SameSite; phiên mất khi máy chủ khởi động lại. Mật khẩu lấy từ môi trường, không có mật khẩu mặc định trong mã nguồn.
 
@@ -142,3 +147,7 @@ Một phiên bản app / một DB SQLite. Rate limit theo địa chỉ kết n�
 [Danh mục](docs/screenshots/v2-catalog.png) · [Trang riêng xe](docs/screenshots/v2-product.png) · [Giỏ hàng](docs/screenshots/v2-cart.png) · [Đặt xe / cọc](docs/screenshots/v2-checkout.png) · [Trả góp](docs/screenshots/v2-installment.png) · [Liên hệ](docs/screenshots/v2-contact.png) · [Điện thoại](docs/screenshots/v2-mobile.png) · [Quản trị sản phẩm](docs/screenshots/v2-admin-products.png)
 
 Ảnh chụp giao diện với danh mục mặc định, biểu mẫu khách hàng trống, không có mật khẩu hoặc thông tin khách hàng thật.
+
+## Quản trị V2.2
+
+Ảnh giao diện trong `docs/screenshots/v22-admin-*.png`. Hộp thư dùng dữ liệu minh họa ở DB kiểm thử riêng, đã ẩn số điện thoại. Kiểm thử V2.2 bổ sung: lưu xe/cài đặt rồi tải lại; phản hồi tư vấn, bản nháp riêng tư, chống gửi trùng, truy cập sai số điện thoại, dữ liệu sau restart; desktop và màn hình 390px.

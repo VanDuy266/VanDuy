@@ -1,7 +1,7 @@
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/app/data
 WORKDIR /app
-COPY --chown=node:node package.json server.js pages.js commerce.js launch.js index.html shop.js style.css retail.css brand.css v2.css admin.html admin.js ./
+COPY --chown=node:node package.json server.js pages.js commerce.js launch.js index.html shop.js style.css retail.css brand.css v2.css admin.html admin.js admin.css ./
 COPY --chown=node:node admin-pages ./admin-pages
 COPY --chown=node:node scripts ./scripts
 COPY --chown=node:node catalog ./catalog
