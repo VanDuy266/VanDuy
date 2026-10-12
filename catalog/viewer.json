@@ -1,0 +1,378 @@
+[
+  {
+    "brand": "Yadea",
+    "name": "Orla 2024",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-orla-2024/",
+    "sourceTitle": "Xe Máy Điện YADEA Orla – Nhẹ, Êm, Chuẩn Phong Cách Đô Thị",
+    "retrievedAt": "2026-10-12T19:36:27.895Z",
+    "colors": [
+      {
+        "name": "Be",
+        "hex": "#c99968",
+        "image": "/assets/yadea-view-orla-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/orla-beige-detail.png",
+        "sourceLabel": "Beige",
+        "sha256": "671303ca29f9440191b397db419d4fb9ea026c52a0822a8fe86307f7bd98bdbf",
+        "bytes": 558562
+      },
+      {
+        "name": "Xanh ngọc",
+        "hex": "#95d8c9",
+        "image": "/assets/yadea-view-orla-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2024/06/orla-beige.png",
+        "sourceLabel": "Orla Beige",
+        "sha256": "2667399efb9dfd631c007412a4a3d08c1ad0e6b3ed3657e036323e3d36f24d9d",
+        "bytes": 551284
+      },
+      {
+        "name": "Hồng",
+        "hex": "#f2b8ea",
+        "image": "/assets/yadea-view-orla-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/orla-pink.png",
+        "sourceLabel": "Orla Pink",
+        "sha256": "4dac7350500c92965ae3dc174064eb9879c2c4340615868445385b595c696cba",
+        "bytes": 650111
+      },
+      {
+        "name": "Đen",
+        "hex": "#000000",
+        "image": "/assets/yadea-view-orla-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/orla-black-detail.png",
+        "sourceLabel": "Đen",
+        "sha256": "adb5b170ac57a0117291d5c7cd65f24e5ac59ec76480e79bb3c0f9ef75bbdb92",
+        "bytes": 672993
+      }
+    ],
+    "frames": [],
+    "spinColor": "",
+    "spinMethod": "manufacturer-angle-sequence"
+  },
+  {
+    "brand": "Yadea",
+    "name": "XBULL H",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-xbull-h/",
+    "sourceTitle": "YADEA XBULL H - Phiên bản nâng cấp mới 2026",
+    "retrievedAt": "2026-10-12T19:36:29.365Z",
+    "colors": [
+      {
+        "name": "Đen",
+        "hex": "#000000",
+        "image": "/assets/yadea-view-xbull-h-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Anh-to-1280x880-2.png",
+        "sourceLabel": "Ảnh to 1280×880-2",
+        "sha256": "e6bbb92870986018bdf4bdc0623cd46f1af6184e1b4e69b02eb138aae209eae6",
+        "bytes": 790389
+      },
+      {
+        "name": "Xanh xám",
+        "hex": "#a5ada4",
+        "image": "/assets/yadea-view-xbull-h-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Anh-to-1280x880-3.png",
+        "sourceLabel": "Ảnh to 1280×880-3",
+        "sha256": "df2bbbc97dfc5419386091090f6856a3f84d453246ad2d79c3ab76c3e56dacec",
+        "bytes": 798360
+      },
+      {
+        "name": "Xám đậm",
+        "hex": "#4d545e",
+        "image": "/assets/yadea-view-xbull-h-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Anh-to-1280x880-1.png",
+        "sourceLabel": "Ảnh to 1280×880-1",
+        "sha256": "44a8282d31d7d3820e8d6cf6afbf45f9adbbeef2c419ec3760ff27625e71740e",
+        "bytes": 742819
+      },
+      {
+        "name": "Xanh dương",
+        "hex": "#4a6893",
+        "image": "/assets/yadea-view-xbull-h-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Anh-to-1280x880-4.png",
+        "sourceLabel": "Ảnh to 1280×880-4",
+        "sha256": "097b79cb4fcfa6ad497f61a0d6e1555954428b44f812b534695cb26970cc51d1",
+        "bytes": 887390
+      }
+    ],
+    "frames": [
+      {
+        "image": "/assets/yadea-view-xbull-h-angle-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Artboard-1-2.png",
+        "sourceLabel": "Artboard 1",
+        "sha256": "ee79d468f5d79ee811e0c4b03d9129dbc14cd336353be9d9f3541e174479d812",
+        "bytes": 127089
+      },
+      {
+        "image": "/assets/yadea-view-xbull-h-angle-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Artboard-3-1.png",
+        "sourceLabel": "Artboard 3",
+        "sha256": "358387a192c0a3af9379e2c1c5d98f5d2c0ba8d9a7bce07c81754ddf88cec872",
+        "bytes": 312120
+      },
+      {
+        "image": "/assets/yadea-view-xbull-h-angle-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Artboard-4-1.png",
+        "sourceLabel": "Artboard 4",
+        "sha256": "9dc37be3c5095202b4ecd865d9dc8c404b374a413bd697788cee9236d649f1b9",
+        "bytes": 150380
+      },
+      {
+        "image": "/assets/yadea-view-xbull-h-angle-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Artboard-5-1.png",
+        "sourceLabel": "Artboard 5",
+        "sha256": "276ea84de8d02f97166c8805dd303323ae4146a277f0467e973f29684f3579a4",
+        "bytes": 299043
+      },
+      {
+        "image": "/assets/yadea-view-xbull-h-angle-5.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2026/01/Artboard-1-3.png",
+        "sourceLabel": "Artboard 1",
+        "sha256": "ee79d468f5d79ee811e0c4b03d9129dbc14cd336353be9d9f3541e174479d812",
+        "bytes": 127089
+      }
+    ],
+    "spinColor": "Xanh xám",
+    "spinMethod": "manufacturer-angle-sequence"
+  },
+  {
+    "brand": "Yadea",
+    "name": "iCUTE",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-icute/",
+    "sourceTitle": "YADEA iCUTE – Xe Máy Điện Dễ Thương, Nhỏ Gọn, Tiết Kiệm",
+    "retrievedAt": "2026-10-12T19:36:31.081Z",
+    "colors": [
+      {
+        "name": "Hồng phối màu",
+        "hex": "#f2cded",
+        "image": "/assets/yadea-view-icute-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/icute-banner-1p2pink.png",
+        "sourceLabel": "Icute Banner 1p2pink",
+        "sha256": "c112f66d61032c616469453dc630c70aa497f0ef818301383954fd842d0b9341",
+        "bytes": 573285
+      },
+      {
+        "name": "Hồng",
+        "hex": "#f2cde6",
+        "image": "/assets/yadea-view-icute-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/icute-banner-pink.png",
+        "sourceLabel": "Icute Banner Pink",
+        "sha256": "83b26a6ce677d985ce103690b984be721d897b9c285315c4bf91415df92bfa57",
+        "bytes": 590862
+      },
+      {
+        "name": "Trắng",
+        "hex": "#fcfcfc",
+        "image": "/assets/yadea-view-icute-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/icute-banner-white.png",
+        "sourceLabel": "Icute Banner White",
+        "sha256": "e75c34f767ba8afe313be7ad7471cbf57d62bc44b8a0bce177d07bc5d911b745",
+        "bytes": 553543
+      },
+      {
+        "name": "Xanh ngọc",
+        "hex": "#6db4bf",
+        "image": "/assets/yadea-view-icute-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/icute-banner-cyan.png",
+        "sourceLabel": "Icute Banner Cyan",
+        "sha256": "7a14f31423afcf1238303f2c4a183bf30e80f1c36b5dda4dfdec7a690c2f3f57",
+        "bytes": 535943
+      }
+    ],
+    "frames": [],
+    "spinColor": "",
+    "spinMethod": "manufacturer-angle-sequence"
+  },
+  {
+    "brand": "Yadea",
+    "name": "Ocean",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-ocean/",
+    "sourceTitle": "YADEA Ocean – Xe Máy Điện Thời Trang, Êm Mượt, Chuẩn Phong Cách Trẻ",
+    "retrievedAt": "2026-10-12T19:36:31.660Z",
+    "colors": [
+      {
+        "name": "Xanh ngọc",
+        "hex": "#55c1b3",
+        "image": "/assets/yadea-view-ocean-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/ocean-cyan-banner-001.png",
+        "sourceLabel": "Ocean Cyan Banner",
+        "sha256": "792999f101e4ae81fbb27cdffa64b1cca2c041cb098b27642b32543d9777f959",
+        "bytes": 558623
+      },
+      {
+        "name": "Hồng",
+        "hex": "#ef97e9",
+        "image": "/assets/yadea-view-ocean-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/ocean-pink-banner.png",
+        "sourceLabel": "Ocean Pink Banner",
+        "sha256": "e8b77ebdfd6d556c556b427a080698ef567a080b9891f7ff3dcc90d44e987727",
+        "bytes": 573064
+      },
+      {
+        "name": "Be",
+        "hex": "#ede6e6",
+        "image": "/assets/yadea-view-ocean-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/ocean-beige-banner.png",
+        "sourceLabel": "Ocean Beige Banner",
+        "sha256": "b466bac36449d8ce9a3d91b7ccf8433325f1531c07aad086a9d0f5b7b5a17f83",
+        "bytes": 568304
+      },
+      {
+        "name": "Tím",
+        "hex": "#be9ae2",
+        "image": "/assets/yadea-view-ocean-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/10/ocean-pink-banner-1.png",
+        "sourceLabel": "Ocean Pink Banner",
+        "sha256": "fea42d3ada355352b11fc59efcb32807fbc1add14bbc6529794170a2b88e1f89",
+        "bytes": 536661
+      }
+    ],
+    "frames": [],
+    "spinColor": "",
+    "spinMethod": "manufacturer-angle-sequence"
+  },
+  {
+    "brand": "Yadea",
+    "name": "Vigor 2025",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-vigor-2025/",
+    "sourceTitle": "YADEA Vigor 2025 Phiên Bản Nâng Cấp – Mạnh Mẽ, Thông Minh",
+    "retrievedAt": "2026-10-12T19:36:32.707Z",
+    "colors": [
+      {
+        "name": "Be",
+        "hex": "#f5f5f5",
+        "image": "/assets/yadea-view-vigor-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2025/09/1410-Vigor-Nang-Cap-be.png",
+        "sourceLabel": "1410 Vigor Nâng Cấp- be",
+        "sha256": "b8b29febd9e1d7c6ab7980fe37b02cbcf5b567251a2dedfcdc024a7b1cce5356",
+        "bytes": 546409
+      },
+      {
+        "name": "Đen",
+        "hex": "#000000",
+        "image": "/assets/yadea-view-vigor-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2025/09/1410-Vigor-Nang-Cap-den.png",
+        "sourceLabel": "1410 Vigor Nâng Cấp- đen",
+        "sha256": "d18dbbe269fbcbcdaa201d4529067e2ace2c81dfdeb511eccaabefd605ae5806",
+        "bytes": 528316
+      },
+      {
+        "name": "Xám",
+        "hex": "#cccccc",
+        "image": "/assets/yadea-view-vigor-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2025/09/1410-Vigor-Nang-Cap-xam.png",
+        "sourceLabel": "1410 Vigor Nâng Cấp- xám",
+        "sha256": "879896103204e887adf07e0154afaef5d52565dc4e2613a8fe41f4f9144ccf87",
+        "bytes": 575868
+      },
+      {
+        "name": "Xám đen",
+        "hex": "#939393",
+        "image": "/assets/yadea-view-vigor-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2025/10/1410-Vigor-Nang-Cap-xam-den.png",
+        "sourceLabel": "1410 Vigor Nâng Cấp- xám đen",
+        "sha256": "94617df1a80f7020fe44dbc5fedc7743bfad4d6c166534c0a155b73601ea8162",
+        "bytes": 638425
+      }
+    ],
+    "frames": [],
+    "spinColor": "",
+    "spinMethod": "manufacturer-angle-sequence"
+  },
+  {
+    "brand": "Yadea",
+    "name": "i8",
+    "source": "https://www.yadea.com.vn/thong-tin-san-pham/yadea-i8/",
+    "sourceTitle": "YADEA i8 – Xe Đạp Điện Cho Học Sinh, Thiết Kế Gọn Nhẹ, Pin Bền",
+    "retrievedAt": "2026-10-12T19:36:33.632Z",
+    "colors": [
+      {
+        "name": "Xanh lá",
+        "hex": "#daf1dd",
+        "image": "/assets/yadea-view-i8-color-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/Anh-sp-banner-1280x880-xanh-la-i8-moi.png",
+        "sourceLabel": "Ảnh sp banner 1280×880 – xanh lá i8 mới",
+        "sha256": "631ec865b5b549a4f1dc2d3538bf3d4bc6e63879f0d1971854d6937615ec7fbe",
+        "bytes": 631846
+      },
+      {
+        "name": "Nâu cam",
+        "hex": "#ffe5af",
+        "image": "/assets/yadea-view-i8-color-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/Anh-sp-banner-1280x880-nau-cam-i8-moi.png",
+        "sourceLabel": "Ảnh sp banner 1280×880 – nâu cam i8 mới",
+        "sha256": "ebb8309409a73105f5914892bdfd1ea1b3850f033668590f6015a4afbfe7518b",
+        "bytes": 622707
+      },
+      {
+        "name": "Trắng sữa",
+        "hex": "#f5f5f5",
+        "image": "/assets/yadea-view-i8-color-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/Anh-sp-banner-1280x880-trang-sua-i8-moi.png",
+        "sourceLabel": "Ảnh sp banner 1280×880 – trắng sữa i8 mới",
+        "sha256": "624be7d34eb016353a02f12da51fa9ba45e21bfd1f3a068b3aca25a5be459b97",
+        "bytes": 653407
+      },
+      {
+        "name": "Xanh dương",
+        "hex": "#82b0dd",
+        "image": "/assets/yadea-view-i8-color-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/Anh-sp-banner-1280x880-xanh-blue-i8-moi.png",
+        "sourceLabel": "Ảnh sp banner 1280×880 – xanh blue i8 mới",
+        "sha256": "fbb64e68938d389b3c07bc1e968c070cf63685da7ed36138176e235c0ffbbbfd",
+        "bytes": 714674
+      },
+      {
+        "name": "Xám",
+        "hex": "#9ea196",
+        "image": "/assets/yadea-view-i8-color-5.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/Anh-sp-banner-1280x880-xam-i8-moi.png",
+        "sourceLabel": "Ảnh sp banner 1280×880 – xám i8 mới",
+        "sha256": "e402e0590a1029408f126e173920330cda5feec20c752198df05fd748d3b7a01",
+        "bytes": 643680
+      }
+    ],
+    "frames": [
+      {
+        "image": "/assets/yadea-view-i8-angle-1.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/7.png",
+        "sourceLabel": "7",
+        "sha256": "62ac566b5be70f35d82d8844c710eeacc87b81216f24685471fa072f9759afae",
+        "bytes": 524917
+      },
+      {
+        "image": "/assets/yadea-view-i8-angle-2.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/6.png",
+        "sourceLabel": "6",
+        "sha256": "625e5bd9a0d7e5f894da17b722562d100de1a898e43cda9bb9305b057af38fd8",
+        "bytes": 286856
+      },
+      {
+        "image": "/assets/yadea-view-i8-angle-3.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/8.png",
+        "sourceLabel": "8",
+        "sha256": "f344722e70dab759a9779c8ac21b817d8617281cd3c59af48841e138e0caf7ef",
+        "bytes": 481505
+      },
+      {
+        "image": "/assets/yadea-view-i8-angle-4.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/3.png",
+        "sourceLabel": "3",
+        "sha256": "666cd95d86e9d74dac6ebe51585b8bc4d98545189f7dbc1574c8a6eb301ae649",
+        "bytes": 470415
+      },
+      {
+        "image": "/assets/yadea-view-i8-angle-5.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/1.png",
+        "sourceLabel": "1",
+        "sha256": "f33920674b9e9d6e3ca16e8412f4352728a5f4ef11ec44dda8824c44cfb81ab6",
+        "bytes": 411669
+      },
+      {
+        "image": "/assets/yadea-view-i8-angle-6.png",
+        "url": "https://www.yadea.com.vn/wp-content/uploads/2023/11/4.png",
+        "sourceLabel": "4",
+        "sha256": "51d080ea6e92beca99b5a125550be040dc936d77c84d43e20429f005e4b96332",
+        "bytes": 476113
+      }
+    ],
+    "spinColor": "Xanh lá",
+    "spinMethod": "manufacturer-angle-sequence"
+  }
+]

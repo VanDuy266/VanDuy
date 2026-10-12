@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.3.0)
+# Xe Điện Đức Tú — V2 nhiều trang (2.4.0)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -177,3 +177,19 @@ Tạo ứng dụng tại nhà cung cấp, điền tên miền/HTTPS callback và
 **Chưa xác minh đăng nhập thật với nhà cung cấp** vì chưa có app/khóa và tên miền. Kiểm thử OAuth hiện dùng nhà cung cấp mô phỏng để kiểm tra state, cookie, token exchange, PKCE và chặn replay. Trước khi công bố kênh thật, phải thử đăng nhập/đăng xuất, hủy cấp quyền và callback trên app chính thức; việc có khóa không tự chứng minh app đã được nhà cung cấp cho phép dùng công khai.
 
 Kiểm tra V2.3: `npm test` chạy 8 bài; kiểm tra trình duyệt desktop/390px đăng ký, đăng nhập, sửa hồ sơ, lịch sử đơn, menu, tab cửa hàng và quay lại admin. Ảnh trong `docs/screenshots/v23-*` là danh mục công khai và biểu mẫu trống. Khi cập nhật từ ZIP, dừng app cũ, sao lưu thư mục `data` rồi giữ nguyên dữ liệu đó trong bản mới trước khi chạy; không chạy hai server cùng DB.
+
+## V2.4: xem xe 360° và chọn màu
+
+Trang từng xe có ảnh màu chính thức, nút màu đồng bộ giữa khu vực mua và khung trải nghiệm. Chọn màu đổi ảnh gốc, giữ lựa chọn khi tải lại và đưa tên màu vào giỏ/đơn/tra cứu/admin/CSV. Một mẫu trong giỏ dùng một màu cho toàn bộ số lượng; muốn đổi màu, mở lại chi tiết xe. Giá vẫn là giá cửa hàng đề xuất, màu/phiên bản và tồn kho cần xác nhận riêng.
+
+- i8: 5 màu, 6 góc ảnh gốc; bộ xoay là mẫu Xanh lá.
+- XBULL H: 4 màu, 5 góc ảnh gốc; bộ xoay là mẫu Xanh xám.
+- Orla 2024, iCUTE, Ocean, Vigor 2025: mỗi mẫu 4 ảnh màu; trang nguồn chưa có đủ bộ góc ảnh để bật xoay, nên chỉ hiện chọn màu.
+
+Kéo/vuốt ngang, dùng phím ← →, nút trước/sau, tự xoay, về góc đầu và mở rộng khung. Escape đóng khung mở rộng; tab giữ trong hộp thoại. Tự xoay chỉ chạy khi người dùng bấm, dừng khi trang ẩn; hỗ trợ prefers-reduced-motion. Bộ góc chỉ nạp khi chuyển sang 360°, giữ ảnh hiện tại nếu mạng lỗi.
+
+Bộ xem là **chuỗi ảnh góc gốc của nhà sản xuất**, không phải mesh 3D/GLB với góc nhìn liên tục hoặc đổi vật liệu. Không dùng CSS đổi màu sơn, ảnh AI hoặc ảnh góc của mẫu khác. Chọn màu khác chuyển về ảnh màu tương ứng; chuyển sang 360° hiển thị rõ màu mẫu gốc. Cần bộ nhiều góc riêng từng màu hoặc mô hình 3D chính thức để xoay liên tục theo màu.
+
+Nguồn, nhãn gốc, ngày lấy, kích thước và SHA-256 của 36 ảnh nằm trong `catalog/viewer.json`; file gốc trong `assets/yadea-view-*`, tổng khoảng 19 MB. Không cần gọi website hãng khi xem. `product-viewer.js` chỉ ghép bộ ảnh khi đúng hãng và tên phiên bản. Khi đổi tên/brand sang mẫu khác, không tự gán bộ ảnh cũ.
+
+`npm test` chạy 10 bài, bổ sung kiểm tra nguồn/checksum, bộ góc đúng mẫu và màu được kiểm tra phía server trước khi lưu đơn. Trình duyệt kiểm tra kéo chuột/phím, tự xoay, mở rộng/Escape, đổi màu/tải lại, giỏ và đơn có màu, desktop/390px. Ảnh màn hình `docs/screenshots/v24-*` chỉ có sản phẩm công khai.
