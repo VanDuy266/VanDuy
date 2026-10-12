@@ -57,3 +57,5 @@ $('#admin-consultations')?.addEventListener('click',event=>{const button=event.t
 for(const id of ['consult-search','consult-filter'])$('#'+id)?.addEventListener('input',renderConsultations);
 
 if(view==='tu-van'||view==='dashboard')setInterval(()=>{if(!document.hidden&&!$('#dashboard').hidden&&!busy&&!dirty)load().catch(error=>{status.dataset.error='true';status.textContent=error.message;});},30000);
+
+const menuToggle=$('#toggle-admin-menu');function setAdminMenu(collapsed){document.body.classList.toggle('admin-menu-collapsed',collapsed);menuToggle?.setAttribute('aria-expanded',String(!collapsed));menuToggle?.setAttribute('aria-label',collapsed?'Mở menu quản trị':'Thu gọn menu quản trị');try{localStorage.setItem('duc-tu-admin-menu',collapsed?'1':'0');}catch{}}try{setAdminMenu(localStorage.getItem('duc-tu-admin-menu')==='1');}catch{}menuToggle?.addEventListener('click',()=>setAdminMenu(!document.body.classList.contains('admin-menu-collapsed')));

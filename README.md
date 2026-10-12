@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.2.0)
+# Xe Điện Đức Tú — V2 nhiều trang (2.3.0)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -34,6 +34,8 @@ Chạy không tương tác / trên VPS: cung cấp ADMIN_PASSWORD bằng biến 
 | `/tra-gop` | Yêu cầu tư vấn xe, kỳ hạn và tiền trả trước mong muốn |
 | `/thanh-toan` | Giải thích thanh toán khi nhận xe, đặt cọc, trạng thái cổng online |
 | `/tra-cuu` | Tra cứu bằng mã đơn + điện thoại, gồm trạng thái và tiền đã ghi nhận |
+| `/dang-nhap` / `/dang-ky` | Tài khoản email/mật khẩu; các nút mạng xã hội chờ app thật |
+| `/tai-khoan` | Thông tin cá nhân, đổi mật khẩu và đơn gửi khi đăng nhập |
 | `/tra-cuu-tu-van` | Tra cứu phản hồi tư vấn bằng mã yêu cầu + số điện thoại |
 | `/yeu-thich` | Danh sách xe quan tâm, lưu trên trình duyệt |
 | `/so-sanh` | So sánh tối đa 3 xe trên trang riêng |
@@ -138,7 +140,7 @@ npm test
 
 Luồng trình duyệt đã kiểm tra trên desktop và 390px: SSR không JavaScript, trang xe riêng, bộ lọc, giỏ hàng, yêu thích/so sánh, đặt cọc, xác nhận tiếp nhận, tra cứu, tư vấn trả góp, quản trị từng trang, CSV, ghi nhận khoản thu và trạng thái công khai. Không có lỗi JavaScript.
 
-Một phiên bản app / một DB SQLite. Rate limit theo địa chỉ kết nối; khi qua Caddy, khách có thể chia sẻ hạn mức. Danh sách quản trị tối đa 500 mục gần nhất. Chưa có tài khoản khách hàng, thông báo tự động, hãng vận chuyển, cổng thanh toán hoặc đối tác trả góp. Các khả năng đó cần dịch vụ/tài khoản thật và kiểm thử riêng, không thể coi là tương đương toàn bộ hệ thống CellphoneS/TGDD.
+Một phiên bản app / một DB SQLite. Rate limit theo địa chỉ kết nối; khi qua Caddy, khách có thể chia sẻ hạn mức. Danh sách quản trị tối đa 500 mục gần nhất. Đã có tài khoản khách hàng email/mật khẩu. Chưa có xác minh/khôi phục email, thông báo tự động, hãng vận chuyển, cổng thanh toán hoặc đối tác trả góp. Các khả năng đó cần dịch vụ/tài khoản thật và kiểm thử riêng, không thể coi là tương đương toàn bộ hệ thống CellphoneS/TGDD.
 
 ## Ảnh chụp các trang V2
 
@@ -151,3 +153,27 @@ Một phiên bản app / một DB SQLite. Rate limit theo địa chỉ kết n�
 ## Quản trị V2.2
 
 Ảnh giao diện trong `docs/screenshots/v22-admin-*.png`. Hộp thư dùng dữ liệu minh họa ở DB kiểm thử riêng, đã ẩn số điện thoại. Kiểm thử V2.2 bổ sung: lưu xe/cài đặt rồi tải lại; phản hồi tư vấn, bản nháp riêng tư, chống gửi trùng, truy cập sai số điện thoại, dữ liệu sau restart; desktop và màn hình 390px.
+
+## V2.3: quay lại quản trị, danh mục và tài khoản
+
+- **Xem cửa hàng** ở admin mở tab mới. Cửa hàng hiện **Quay lại quản trị** nếu cookie quản trị còn hiệu lực. Khách chưa đăng nhập admin không thấy thanh này; quyền truy cập API vẫn được kiểm tra riêng.
+- Nút ☰ ở admin thu gọn/mở menu; trạng thái lưu trong trình duyệt. Danh mục storefront mở menu kiểu xe + ngân sách, đóng bằng Escape hoặc bấm bên ngoài. Bộ lọc ở `/xe-dien` cũng thu gọn được.
+- Khách đăng ký email/mật khẩu tối thiểu 10 ký tự, đăng nhập, đăng xuất, cập nhật tên/điện thoại, đổi mật khẩu hiện tại. Mật khẩu dùng scrypt với salt riêng; cookie phiên HttpOnly, Secure khi production; phiên khách 7 ngày trong SQLite, độc lập phiên admin. Đổi mật khẩu hủy các phiên khác.
+- Lịch sử chỉ lấy đơn gửi khi đã đăng nhập, gắn bằng customer_id tại máy chủ. Không tự gán đơn cũ theo email/số điện thoại chưa xác minh. Khách vẫn đặt đơn không tài khoản và tra cứu bằng mã + điện thoại.
+- Chưa có dịch vụ gửi thư: email chưa xác minh, chưa có quên mật khẩu qua email. Không tự đặt lại mật khẩu dựa vào một yêu cầu điện thoại.
+
+### Kết nối Google / Facebook / Zalo khi có ứng dụng
+
+Chủ cửa hàng xác nhận **chưa có app**, nên mặc định cả ba nút hiện **Chờ cấu hình**. Có bộ xử lý OAuth phía máy chủ, state gắn với cookie trình duyệt, hết hạn 5 phút/chỉ dùng một lần; Google/Zalo dùng PKCE. Không tự liên kết tài khoản xã hội với tài khoản email. Access token chỉ dùng để lấy định danh, không lưu xuống DB hoặc đưa ra trình duyệt.
+
+| Nhà cung cấp | Biến cấu hình trên máy chủ | Callback đăng ký chính xác |
+|---|---|---|
+| Google (Gmail) | GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET | https://TEN-MIEN/api/auth/social/google/callback |
+| Facebook | FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET | https://TEN-MIEN/api/auth/social/facebook/callback |
+| Zalo | ZALO_APP_ID, ZALO_APP_SECRET | https://TEN-MIEN/api/auth/social/zalo/callback |
+
+Tạo ứng dụng tại nhà cung cấp, điền tên miền/HTTPS callback và hoàn tất yêu cầu xét duyệt theo tài khoản ứng dụng. Nhập cấu hình trong `.env` bảo mật ở VPS (không commit hoặc gửi chat); Compose đã truyền các biến này. Khởi động lại app sau khi đổi. Nút chỉ bật khi đủ ID + secret. Với Google dùng OAuth web client (OpenID Connect), Facebook Graph v23.0 public_profile, Zalo OAuth v4 + profile v2.0.
+
+**Chưa xác minh đăng nhập thật với nhà cung cấp** vì chưa có app/khóa và tên miền. Kiểm thử OAuth hiện dùng nhà cung cấp mô phỏng để kiểm tra state, cookie, token exchange, PKCE và chặn replay. Trước khi công bố kênh thật, phải thử đăng nhập/đăng xuất, hủy cấp quyền và callback trên app chính thức; việc có khóa không tự chứng minh app đã được nhà cung cấp cho phép dùng công khai.
+
+Kiểm tra V2.3: `npm test` chạy 8 bài; kiểm tra trình duyệt desktop/390px đăng ký, đăng nhập, sửa hồ sơ, lịch sử đơn, menu, tab cửa hàng và quay lại admin. Ảnh trong `docs/screenshots/v23-*` là danh mục công khai và biểu mẫu trống. Khi cập nhật từ ZIP, dừng app cũ, sao lưu thư mục `data` rồi giữ nguyên dữ liệu đó trong bản mới trước khi chạy; không chạy hai server cùng DB.

@@ -5,6 +5,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {DatabaseSync}=require('node:sqlite');
 const {renderPage,productUrl}=require('./pages');
+const {initializeAccounts}=require('./accounts');
 const {initializeCommerce,paymentSummary,validateSocial}=require('./commerce');
 const port=Number(process.env.PORT||3000);
 const production=process.env.NODE_ENV==='production';
@@ -79,6 +80,7 @@ function text(value,min,max,label){if(typeof value!=='string'||value.trim().leng
 function phone(value){const p=text(value,9,20,'Số điện thoại').replace(/[ ()+.-]/g,'');if(!/^\d{9,15}$/.test(p))fail(400,'Số điện thoại không hợp lệ');return p;}
 async function body(req){if(!(req.headers['content-type']||'').startsWith('application/json'))fail(415,'Yêu cầu JSON');const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>3000000)fail(413,'Yêu cầu quá lớn');chunks.push(chunk);}try{const data=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!data||typeof data!=='object'||Array.isArray(data))throw Error();return data;}catch{fail(400,'JSON không hợp lệ');}}
 function session(req){const token=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('volt_session='))?.slice(13);const s=sessions.get(token);if(!s||s.expires<Date.now())fail(401,'Vui lòng đăng nhập');return{token,...s};}
+const accounts=initializeAccounts(db,{origin:siteOrigin,production,json,body,fail,text,phone,rate,paymentSummary});
 const files={'/':'index.html','/index.html':'index.html','/style.css':'style.css','/retail.css':'retail.css','/brand.css':'brand.css','/v2.css':'v2.css','/shop.js':'shop.js','/assets/scooter.svg':'assets/scooter.svg','/admin':'admin.html','/admin/san-pham':'admin-pages/san-pham.html','/admin/don-hang':'admin-pages/don-hang.html','/admin/tu-van':'admin-pages/tu-van.html','/admin/cai-dat':'admin-pages/cai-dat.html','/admin/thanh-toan':'admin-pages/thanh-toan.html','/admin.js':'admin.js','/admin.css':'admin.css'};
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg'};
 const server=http.createServer(async(req,res)=>{
@@ -88,6 +90,7 @@ const server=http.createServer(async(req,res)=>{
  try{
  const url=new URL(req.url,'http://localhost');const route=url.pathname;
  if(!['GET','HEAD'].includes(req.method)&&req.headers.origin!==siteOrigin)fail(403,'Nguồn yêu cầu không hợp lệ');
+ if(await accounts.handle(req,res,url))return;
  if(route==='/api/health'&&req.method==='GET')return json(res,200,{ok:db.prepare('SELECT 1 n').get().n===1});
  if(route==='/api/store'&&req.method==='GET')return json(res,200,{...settings(),acceptingOrders:ready(),onlinePaymentAvailable:false});
  if(route==='/api/products'&&req.method==='GET')return json(res,200,db.prepare('SELECT * FROM products WHERE published=1 ORDER BY id').all());
@@ -96,14 +99,14 @@ const server=http.createServer(async(req,res)=>{
  if(route==='/api/orders'&&req.method==='POST'){
   rate(req,'orders',10);if(!ready())fail(503,'Cửa hàng đang hoàn thiện thông tin. Chưa nhận đơn hàng.');
   const b=await body(req);if(b.consent!==true)fail(400,'Cần đồng ý sử dụng thông tin để xử lý yêu cầu');const plan=b.paymentPlan||'cod';if(!['cod','deposit','installment'].includes(plan))fail(400,'Phương án thanh toán chưa được hỗ trợ');const months=plan==='installment'?(b.financeMonths??12):null;if(months!==null&&![6,9,12,18,24].includes(months))fail(400,'Kỳ hạn không hợp lệ');const name=text(b.name,2,80,'Họ tên'),p=phone(b.phone),address=text(b.address,5,300,'Địa chỉ'),note=text(b.note||'',0,1000,'Ghi chú');
-  const key=text(req.headers['idempotency-key'],16,80,'Mã yêu cầu');
+  const customerId=accounts.current(req)?.customer_id||null;const key=text(req.headers['idempotency-key'],16,80,'Mã yêu cầu');
   if(!Array.isArray(b.items)||!b.items.length||b.items.length>30)fail(400,'Giỏ hàng không hợp lệ');
   let total=0;const seen=new Set();const items=b.items.map(i=>{if(!i||typeof i!=='object'||!Number.isInteger(i.id)||!Number.isInteger(i.quantity)||i.quantity<1||i.quantity>10||seen.has(i.id))fail(400,'Số lượng không hợp lệ');seen.add(i.id);const p=db.prepare('SELECT * FROM products WHERE id=? AND published=1').get(i.id);if(!p)fail(409,'Sản phẩm không còn được bán. Vui lòng tải lại trang.');if(i.expectedPrice!==undefined&&i.expectedPrice!==p.price)fail(409,'Giá sản phẩm đã thay đổi. Vui lòng tải lại trang và kiểm tra giá.');total+=p.price*i.quantity;return{id:p.id,name:`${p.brand} ${p.name}`,price:p.price,quantity:i.quantity,reserved:p.stock!==null};});
   const depositDue=plan==='deposit'&&settings().depositAmount>0?Math.min(settings().depositAmount,total):null;
   const old=db.prepare('SELECT * FROM orders WHERE request_key=?').get(key);
-  if(old){if(old.name!==name||old.phone!==p||old.address!==address||old.note!==note||old.items!==JSON.stringify(items)||old.payment_plan!==plan||old.finance_months!==months)fail(409,'Mã yêu cầu đã dùng cho đơn khác');return json(res,200,{id:old.id,total:old.total,paymentPlan:old.payment_plan,depositDue:old.deposit_due,payment:paymentSummary(db,old)});}
+  if(old){if(old.customer_id!==customerId||old.name!==name||old.phone!==p||old.address!==address||old.note!==note||old.items!==JSON.stringify(items)||old.payment_plan!==plan||old.finance_months!==months)fail(409,'Mã yêu cầu đã dùng cho đơn khác');return json(res,200,{id:old.id,total:old.total,paymentPlan:old.payment_plan,depositDue:old.deposit_due,payment:paymentSummary(db,old)});}
   for(const i of items){const product=db.prepare('SELECT stock FROM products WHERE id=?').get(i.id);if(product.stock!==null&&product.stock<i.quantity)fail(409,'Số lượng xe không đủ. Vui lòng điều chỉnh giỏ hàng.');}
-  const id='V-'+crypto.randomBytes(8).toString('hex').toUpperCase();db.exec('BEGIN IMMEDIATE');try{db.prepare('INSERT INTO orders(id,request_key,name,phone,address,note,items,total,created_at,payment_plan,deposit_due,finance_months) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(id,key,name,p,address,note,JSON.stringify(items),total,new Date().toISOString(),plan,depositDue,months);for(const item of items)if(item.reserved)db.prepare('UPDATE products SET stock=stock-? WHERE id=? AND stock IS NOT NULL').run(item.quantity,item.id);db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}return json(res,201,{id,total,paymentPlan:plan,depositDue,payment:{received:0,remaining:total,status:'unpaid',source:'none'}});
+  const id='V-'+crypto.randomBytes(8).toString('hex').toUpperCase();db.exec('BEGIN IMMEDIATE');try{db.prepare('INSERT INTO orders(id,request_key,name,phone,address,note,items,total,created_at,payment_plan,deposit_due,finance_months,customer_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)').run(id,key,name,p,address,note,JSON.stringify(items),total,new Date().toISOString(),plan,depositDue,months,customerId);for(const item of items)if(item.reserved)db.prepare('UPDATE products SET stock=stock-? WHERE id=? AND stock IS NOT NULL').run(item.quantity,item.id);db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}return json(res,201,{id,total,paymentPlan:plan,depositDue,payment:{received:0,remaining:total,status:'unpaid',source:'none'}});
  }
  if(route==='/api/orders/track'&&req.method==='POST'){rate(req,'tracking',10);const b=await body(req);const order=db.prepare('SELECT id,status,items,total,created_at,payment_plan,deposit_due,finance_months FROM orders WHERE id=? AND phone=?').get(text(b.id,1,40,'Mã đơn').toUpperCase(),phone(b.phone));if(!order)fail(404,'Không tìm thấy yêu cầu với mã đơn và số điện thoại này');return json(res,200,{...order,items:JSON.parse(order.items),payment:paymentSummary(db,order)});}
  if(route==='/api/consultations'&&req.method==='POST'){
@@ -157,7 +160,8 @@ const server=http.createServer(async(req,res)=>{
  if(/^\/xe\/\d+(?:\/[a-z0-9-]+)?$/.test(route)){const p=db.prepare('SELECT * FROM products WHERE id=? AND published=1').get(Number(route.split('/')[2]));if(!p)fail(404,'Không tìm thấy xe');if(route!==productUrl(p)){res.writeHead(301,{Location:productUrl(p)});return res.end();}}
  if(route==='/policies'){res.writeHead(301,{Location:'/chinh-sach'});return res.end();}
  if(route==='/dat-hang/hoan-tat'){const id=url.searchParams.get('order')||'';if(!/^V-[A-F0-9]{16}$/.test(id)||!db.prepare('SELECT 1 FROM orders WHERE id=?').get(id))fail(404,'Không tìm thấy mã yêu cầu');}
- const page=renderPage(url,{store:settings(),products:db.prepare('SELECT * FROM products WHERE published=1 ORDER BY id').all(),origin:siteOrigin,acceptingOrders:ready()});if(page){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});return res.end(req.method==='HEAD'?'':page);}
+ let adminActive=false;try{session(req);adminActive=true;}catch{}
+ const page=renderPage(url,{store:{...settings(),adminActive},products:db.prepare('SELECT * FROM products WHERE published=1 ORDER BY id').all(),origin:siteOrigin,acceptingOrders:ready()});if(page){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-cache'});return res.end(req.method==='HEAD'?'':page);}
  if(route==='/index.html'){res.writeHead(301,{Location:'/'});return res.end();}
  if(route==='/robots.txt'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end(`User-agent: *\nDisallow: /admin\nDisallow: /api/\nSitemap: ${siteOrigin}/sitemap.xml\n`);}
  if(route==='/sitemap.xml'){const paths=['/','/xe-dien','/dat-coc','/tra-gop','/thanh-toan','/lien-he','/cam-nang','/chinh-sach',...db.prepare('SELECT * FROM products WHERE published=1').all().map(productUrl)];res.writeHead(200,{'Content-Type':'application/xml'});return res.end(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(p=>`<url><loc>${siteOrigin+p}</loc></url>`).join('')}</urlset>`);}
