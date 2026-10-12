@@ -79,3 +79,9 @@ Chuyển backup đến nơi riêng có kiểm soát truy cập, không vào Git.
 [Xem toàn bộ trang desktop](docs/screenshots/home-desktop.png) · [Xem giao diện điện thoại](docs/screenshots/home-mobile.png) · [Xem chi tiết sản phẩm](docs/screenshots/product-detail.png)
 
 Ảnh được chụp với dữ liệu danh mục, không có thông tin khách hàng hoặc mật khẩu.
+
+## Nhận diện cửa hàng — phiên bản 2.0.2
+
+Logo Đức Tú Phú Quốc được chuẩn bị từ ảnh chủ cửa hàng cung cấp, xử lý nền bằng công cụ ảnh AI. Header, footer, quản trị và favicon sử dụng cùng nhận diện xanh navy/vàng. Hai số liên hệ mặc định: 0326 262 859 và 0866 975 540; địa chỉ khu vực: Khu phố 6, phường Dương Đông, Phú Quốc. Có thể chỉnh thông tin trong quản trị. Migration chỉ điền các trường liên hệ còn trống, giữ thông tin người dùng đã nhập. Tên pháp lý và địa chỉ đường cụ thể vẫn cần xác nhận.
+
+Poster Back to School được cung cấp nhưng chương trình giảm 500.000đ–2 triệu chưa áp dụng vào giá do chưa có danh sách xe, điều kiện và thời hạn được xác nhận.
