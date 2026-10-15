@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V3.0 Beta (3.0.0-beta.1)
+# Xe Điện Đức Tú — V3.1 Beta (3.1.0-beta.1)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -239,3 +239,10 @@ Kiểm thử V2.6: 13 bài npm test; trình duyệt kiểm tra chọn màu 12 m�
 - Bản Beta chưa kết nối cổng thu tiền thật hoặc tự cấp tài khoản OAuth; các giới hạn nguồn ảnh 360 và merchant đã ghi ở trên vẫn áp dụng.
 
 Kiểm tra: `npm test` gồm kiểm tra quyền mua hàng, CSRF, chống đánh giá trùng, giới hạn sao, ẩn/hiện và phản hồi admin. Ảnh giao diện V3 nằm trong `docs/screenshots/v3-*.png`.
+
+
+## V3.1 Beta
+
+Xem [Hướng dẫn V3.1](HUONG-DAN-V3.1.md) để cập nhật Windows, cấu hình Cloudflare, dùng chức năng khách/admin, phân quyền và các giới hạn kết nối ngoài. Thêm trung tâm vận hành `/admin/v3-1`, ưu đãi/quảng cáo/LED, kho màu, hỗ trợ sau mua, bàn giao, thông báo, tài khoản và phụ kiện. Giữ nguyên dữ liệu và chức năng cũ; không có đăng ký lái thử.
+
+Chạy `npm test`. QR sử dụng bản vendored MIT `qrcode-generator@1.4.4`, xem vendor/README.md. Dockerfile chứa đầy đủ module V3.1.
