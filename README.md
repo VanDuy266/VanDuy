@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V3.1 Beta (3.1.0-beta.1)
+# Xe Điện Đức Tú — V3.1 Beta (3.1.0-beta.2)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -246,3 +246,10 @@ Kiểm tra: `npm test` gồm kiểm tra quyền mua hàng, CSRF, chống đánh 
 Xem [Hướng dẫn V3.1](HUONG-DAN-V3.1.md) để cập nhật Windows, cấu hình Cloudflare, dùng chức năng khách/admin, phân quyền và các giới hạn kết nối ngoài. Thêm trung tâm vận hành `/admin/v3-1`, ưu đãi/quảng cáo/LED, kho màu, hỗ trợ sau mua, bàn giao, thông báo, tài khoản và phụ kiện. Giữ nguyên dữ liệu và chức năng cũ; không có đăng ký lái thử.
 
 Chạy `npm test`. QR sử dụng bản vendored MIT `qrcode-generator@1.4.4`, xem vendor/README.md. Dockerfile chứa đầy đủ module V3.1.
+
+
+### V3.1 Beta — build 2
+
+Banner ảnh/video tự chuyển, LED tên shop và hotline, bộ theo mùa hiển thị mặc định; admin tải MP4, hẹn lịch nhận xe, nội dung câu chuyện và sắp xếp trang chủ. Xem [ảnh trực tiếp trên GitHub](docs/XEM-TRUOC-V3.1.md), [đối chiếu yêu cầu](docs/DOI-CHIEU-V3.1.md) và [hướng dẫn cập nhật](HUONG-DAN-V3.1.md).
+
+`npm test`: 19 bài. `npm run test:browser`: kiểm tra tùy chọn (Playwright 1.62.1 / Chromium, scripts/qa/README.md). Không cần cài gói ngoài để chạy website. Video mặc định dựng từ các ảnh gốc trong danh mục, tái tạo bằng scripts/build-showcase-video.sh nếu có ffmpeg; ffmpeg không phải phụ thuộc chạy website.

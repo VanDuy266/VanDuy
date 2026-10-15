@@ -30,7 +30,7 @@
 ## Admin /admin/v3-1
 
 - **Điều hành:** số yêu cầu đang chờ, đơn chờ, lịch nhận mong muốn, màu xe còn ít, khoản thu/hoàn nhân viên ghi nhận.
-- **Banner & quảng cáo:** thêm/sửa/tắt, lịch hiệu lực, ảnh tải lên, link nội bộ, thứ tự, nội dung/quà tặng và điều kiện; xem trước, banner chuyển có dừng, khu ưu đãi, popup một lần/phiên. Video MP4 phải được triển khai trong assets; không tự tải video mạng xã hội.
+- **Banner & quảng cáo:** thêm/sửa/tắt, lịch hiệu lực, ảnh tải lên, link nội bộ, thứ tự, nội dung/quà tặng và điều kiện; xem trước, banner chuyển có dừng, khu ưu đãi, popup một lần/phiên. Có thể tải MP4 lên trong admin (tối đa 40 MB) hoặc dùng tệp đã triển khai trong assets; không tự tải video mạng xã hội.
 - **Liên hệ & LED:** giờ mở cửa, Google Maps HTTPS, ảnh mặt tiền, chữ chạy có nút dừng, chủ đề Navy/Tựu trường/Tết, mẫu trả lời. Hotline và các link mạng xã hội nằm trong Cài đặt cũ.
 - **Quảng cáo thực:** không có giảm giá giả, lượt mua giả, đồng hồ tự reset hoặc chớp nháy nhanh. Giảm chuyển động theo cài đặt thiết bị. Lượt xem/bấm là sự kiện tham khảo, không phải người duy nhất; đơn gắn chiến dịch gần nhất trong phiên, tách số yêu cầu khỏi đã giao, không phải hệ thống attribution quảng cáo đa kênh.
 - **Mã ưu đãi:** cố định/%; đơn tối thiểu, trần giảm, số lượt, ngày bắt đầu/kết thúc. Tắt mã hoặc cập nhật theo cùng mã. Hủy đơn hoàn lại lượt; không sửa ưu đãi trên đơn đã lưu.
@@ -52,4 +52,18 @@ Bản Beta cần shop nhập các dữ liệu thật trước khi bán: giá/sto
 `npm test` kiểm tra các luồng cũ và V3.1: quyền tài khoản, coupon, tồn màu/hoàn kho, ticket riêng, thông báo, QR, file riêng, nhân viên, báo cáo tiền và bàn giao. Dockerfile đã bổ sung đủ module V3/V3.1 và thư viện QR cục bộ (MIT), không cần npm install khi chạy. Bản Docker chạy non-root, SQLite và ảnh phải ở volume data.
 
 
-Kết quả kiểm chứng bản này: 16 bài `npm test` đạt. Trình duyệt Chromium kiểm tra 11 mục trung tâm admin; thêm địa chỉ, khách gửi hỗ trợ và shop phản hồi, hỏi đáp, theo dõi xe, tính chi phí, gợi ý xe, tạo coupon bằng giao diện và checkout chọn màu/nhận tại shop/áp mã/gửi đơn. Các trang đã thử ở 390px và 1440px không tràn ngang, không lỗi JavaScript. Docker build và smoke test health, nội dung, admin, assets, QR, đăng nhập và tổng quan đạt. Đây là kiểm thử cục bộ bằng dữ liệu tổng hợp, không phải xác nhận dịch vụ thanh toán/OAuth bên ngoài hoạt động.
+Kết quả kiểm chứng build 2: 19 bài `npm test` đạt. Bộ kiểm tra trình duyệt có thể chạy lại bằng `npm run test:browser` với Playwright/Chromium (xem scripts/qa/README.md). Đã thử 12 mục trung tâm admin, khách đặt xe có màu/giá/địa chỉ/nhận tại shop/ưu đãi, hỗ trợ hai chiều, hỏi đáp, theo dõi, sắp xếp trang chủ và khôi phục giỏ khi danh mục tải chậm. Banner/video đã kiểm tra tự chuyển, phát không tiếng, phát xong chuyển tiếp, giữ slide khi xem thủ công và reduced motion. Kiểm tra 360/390/768/1440px không tràn ngang. Docker chạy root filesystem read-only, user node, volume dữ liệu và upload video đạt.
+
+## Build 2 — không còn phải tạo banner từ đầu
+
+- Cập nhật là có sẵn bộ banner giới thiệu, LED tên shop và hotline, 4 slide và video thiết kế. Nội dung là giới thiệu, không tạo giảm giá/quà tặng giả.
+- LED theo yêu cầu: **Xe Điện Đức Tú • Hotline: 0326 262 859 – 0866 975 540**. Các preset mùa không chèn slogan vào LED. Chủ shop vẫn chỉnh/tắt được trong admin; tắt có chủ đích được giữ qua restart.
+- Liên hệ & LED: chọn bộ mùa bằng nút; bật/tắt banner mặc định, tự phát video không tiếng; chọn xe nổi bật và đổi thứ tự các nhóm bằng nút lên/xuống.
+- Banner & quảng cáo: tải riêng ảnh banner, ảnh quà, video MP4 H.264 tối đa 40 MB. Đường dẫn được điền sau upload; phải nhấn Lưu để áp dụng. Tệp lưu dưới data/media, cần sao lưu cùng database.
+- Câu chuyện cửa hàng: chọn loại Câu chuyện, nhập nội dung/ảnh và xác nhận quyền sử dụng/đồng ý của người xuất hiện. Hiện tại `/cau-chuyen-duc-tu` và trang chủ. Không có đồng hồ khuyến mãi trong câu chuyện.
+- Lịch nhận xe: shop chọn đơn đang xử lý và xác nhận ngày giờ, khách nhận thông báo; ngày giờ mong muốn và xác nhận được phân biệt.
+- Giá trước giảm: nhập tại editor sản phẩm, phải lớn hơn giá hiện tại. Không tự tạo giá gạch ngang từ số bịa đặt.
+- Thông báo admin nhận biết cả khách trả lời lại cùng một yêu cầu hỗ trợ.
+- `/api/health` trả đúng phiên bản `3.1.0-beta.2`. Footer hiện build 2 để kiểm tra đang chạy đúng bản. Nếu vẫn thấy bản cũ, dừng server cũ và chạy từ thư mục mới đã giải nén.
+
+Xem [bảng đối chiếu đầy đủ](docs/DOI-CHIEU-V3.1.md) và [ảnh xem trước](docs/XEM-TRUOC-V3.1.md). Những mục cần merchant, API mạng xã hội, dịch vụ email/hóa đơn, domain hoặc bộ ảnh 360 gốc được nêu riêng; không coi là đã kết nối khi chưa có điều kiện thật.
