@@ -3,12 +3,13 @@ const crypto=require('node:crypto'),{promisify}=require('node:util');
 const {requestCancellation,orderHistory,acknowledgeReceipt}=require('./commerce');
 const scrypt=promisify(crypto.scrypt),digest=v=>crypto.createHash('sha256').update(v).digest('hex');
 const providers={google:{label:'Google / Gmail',id:'GOOGLE_CLIENT_ID',secret:'GOOGLE_CLIENT_SECRET',authorize:'https://accounts.google.com/o/oauth2/v2/auth',token:'https://oauth2.googleapis.com/token',userinfo:'https://openidconnect.googleapis.com/v1/userinfo'},facebook:{label:'Facebook',id:'FACEBOOK_CLIENT_ID',secret:'FACEBOOK_CLIENT_SECRET',authorize:'https://www.facebook.com/v23.0/dialog/oauth',token:'https://graph.facebook.com/v23.0/oauth/access_token',userinfo:'https://graph.facebook.com/v23.0/me'},zalo:{label:'Zalo',id:'ZALO_APP_ID',secret:'ZALO_APP_SECRET',authorize:'https://oauth.zaloapp.com/v4/permission',token:'https://oauth.zaloapp.com/v4/access_token',userinfo:'https://graph.zalo.me/v2.0/me'}};
-function initializeAccounts(db,{origin,production,json,body,fail,text,phone,rate,paymentSummary,fetcher=fetch}){
+function initializeAccounts(db,{origin,production,json,body,fail,text,phone,rate,paymentSummary,fetcher=fetch,resetMailer}){
  db.exec(`CREATE TABLE IF NOT EXISTS customers(id TEXT PRIMARY KEY,name TEXT NOT NULL,email TEXT UNIQUE,phone TEXT NOT NULL DEFAULT '',salt TEXT,password_hash TEXT,created_at TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS customer_sessions(token_hash TEXT PRIMARY KEY,customer_id TEXT NOT NULL REFERENCES customers(id),csrf TEXT NOT NULL,expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS customer_identities(provider TEXT NOT NULL,subject TEXT NOT NULL,customer_id TEXT NOT NULL REFERENCES customers(id),PRIMARY KEY(provider,subject));
  CREATE TABLE IF NOT EXISTS customer_events(id TEXT PRIMARY KEY,customer_id TEXT NOT NULL REFERENCES customers(id),event TEXT NOT NULL,provider TEXT NOT NULL,created_at TEXT NOT NULL);
  CREATE INDEX IF NOT EXISTS customer_event_index ON customer_events(customer_id,created_at);
+ CREATE TABLE IF NOT EXISTS password_resets(token_hash TEXT PRIMARY KEY,customer_id TEXT NOT NULL REFERENCES customers(id),expires INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS oauth_attempts(state TEXT PRIMARY KEY,browser_hash TEXT NOT NULL,verifier TEXT NOT NULL,provider TEXT NOT NULL,expires INTEGER NOT NULL);`);
  if(!db.prepare('PRAGMA table_info(orders)').all().some(c=>c.name==='customer_id'))db.exec('ALTER TABLE orders ADD COLUMN customer_id TEXT REFERENCES customers(id)');
  const cookie=(req,name)=>(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='))?.slice(name.length+1)||'';
@@ -31,10 +32,35 @@ function initializeAccounts(db,{origin,production,json,body,fail,text,phone,rate
  if(route==='/api/auth/register'&&req.method==='POST'){
   rate(req,'account-register',5);const b=await body(req);if(b.consent!==true)fail(400,'Cần đồng ý chính sách bảo mật');const name=text(b.name,2,80,'Họ tên'),e=email(b.email),pass=password(b.password),salt=crypto.randomBytes(16).toString('hex'),hashed=await hash(pass,salt);if(db.prepare('SELECT 1 FROM customers WHERE email=?').get(e))fail(409,'Không thể đăng ký email này. Nếu đã có tài khoản, hãy đăng nhập.');const id=crypto.randomUUID();db.prepare('INSERT INTO customers(id,name,email,salt,password_hash,created_at) VALUES(?,?,?,?,?,?)').run(id,name,e,salt,hashed,new Date().toISOString());customerEvent(id,'registered','email');json(res,201,signIn(res,id));return true;
  }
+ if(route==='/api/auth/password-reset'&&req.method==='POST'){
+  rate(req,'password-reset-request',5);const b=await body(req),e=email(b.email);rate(req,'password-reset-email-'+digest(e),3);
+  if(!resetMailer&&!(process.env.RESEND_API_KEY&&process.env.MAIL_FROM))fail(503,'Chức năng khôi phục đang chờ cấu hình email. Vui lòng liên hệ cửa hàng.');
+  const c=db.prepare('SELECT * FROM customers WHERE email=?').get(e);
+  db.prepare('DELETE FROM password_resets WHERE expires<?').run(Date.now());
+  if(c?.password_hash){
+   const token=crypto.randomBytes(32).toString('hex'),key=digest(token),link=origin+'/dat-lai-mat-khau#'+token;
+   db.prepare('INSERT INTO password_resets VALUES(?,?,?)').run(key,c.id,Date.now()+15*60000);
+   try{if(resetMailer)await resetMailer({to:e,link});else{const response=await fetcher('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+process.env.RESEND_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({from:process.env.MAIL_FROM,to:[e],subject:'Đặt lại mật khẩu — Xe Điện Đức Tú',text:'Bạn đã yêu cầu đặt lại mật khẩu. Mở liên kết dưới đây trong 15 phút. Liên kết chỉ dùng một lần. Nếu không phải bạn yêu cầu, hãy bỏ qua thư này.\n\n'+link}),signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error('mail-delivery');}}
+   catch{db.prepare('DELETE FROM password_resets WHERE token_hash=?').run(key);/* Do not disclose account existence or provider details. */}
+  }
+  json(res,200,{ok:true,message:'Nếu email có tài khoản dùng mật khẩu, bạn sẽ nhận được liên kết khôi phục. Kiểm tra cả thư rác. Với Google/Facebook/Zalo, hãy đăng nhập bằng nút tương ứng.'});return true;
+ }
+ if(route==='/api/auth/password-reset/confirm'&&req.method==='POST'){
+  rate(req,'password-reset-confirm',10);const b=await body(req);
+  if(typeof b.token!=='string'||!/^[a-f0-9]{64}$/.test(b.token))fail(400,'Liên kết không hợp lệ hoặc đã hết hạn.');
+  const key=digest(b.token),salt=crypto.randomBytes(16).toString('hex'),hashed=await hash(password(b.password),salt);
+  db.exec('BEGIN IMMEDIATE');try{const r=db.prepare('SELECT * FROM password_resets WHERE token_hash=? AND expires>?').get(key,Date.now());if(!r)fail(400,'Liên kết không hợp lệ hoặc đã hết hạn.');
+   db.prepare('UPDATE customers SET salt=?,password_hash=? WHERE id=?').run(salt,hashed,r.customer_id);
+   db.prepare('DELETE FROM password_resets WHERE customer_id=?').run(r.customer_id);
+   db.prepare('DELETE FROM customer_sessions WHERE customer_id=?').run(r.customer_id);
+   customerEvent(r.customer_id,'password_reset','email');db.exec('COMMIT');
+  }catch(error){db.exec('ROLLBACK');throw error;}
+  json(res,200,{ok:true});return true;
+ }
  if(route==='/api/auth/login'&&req.method==='POST'){rate(req,'account-login',10);const b=await body(req),e=email(b.email),pass=text(b.password,1,128,'Mật khẩu'),c=db.prepare('SELECT * FROM customers WHERE email=?').get(e);if(!await validPassword(pass,c))fail(401,'Email hoặc mật khẩu không đúng');json(res,200,signIn(res,c.id));return true;}
  if(route==='/api/auth/logout'&&req.method==='POST'){const s=requireUser(req);db.prepare('DELETE FROM customer_sessions WHERE token_hash=?').run(s.token_hash);setCookie(res,'duc_tu_customer','',0);json(res,200,{ok:true});return true;}
  if(route==='/api/account/profile'&&req.method==='POST'){const s=requireUser(req),b=await body(req),name=text(b.name,2,80,'Họ tên'),number=b.phone?phone(b.phone):'';db.prepare('UPDATE customers SET name=?,phone=? WHERE id=?').run(name,number,s.customer_id);json(res,200,{ok:true});return true;}
- if(route==='/api/account/password'&&req.method==='POST'){rate(req,'account-password',5);const s=requireUser(req),b=await body(req),c=db.prepare('SELECT * FROM customers WHERE id=?').get(s.customer_id);if(!await validPassword(text(b.currentPassword,1,128,'Mật khẩu hiện tại'),c))fail(401,'Mật khẩu hiện tại không đúng');const salt=crypto.randomBytes(16).toString('hex'),hashed=await hash(password(b.password),salt);db.prepare('UPDATE customers SET salt=?,password_hash=? WHERE id=?').run(salt,hashed,s.customer_id);db.prepare('DELETE FROM customer_sessions WHERE customer_id=? AND token_hash<>?').run(s.customer_id,s.token_hash);json(res,200,{ok:true});return true;}
+ if(route==='/api/account/password'&&req.method==='POST'){rate(req,'account-password',5);const s=requireUser(req),b=await body(req),c=db.prepare('SELECT * FROM customers WHERE id=?').get(s.customer_id);if(!await validPassword(text(b.currentPassword,1,128,'Mật khẩu hiện tại'),c))fail(401,'Mật khẩu hiện tại không đúng');const salt=crypto.randomBytes(16).toString('hex'),hashed=await hash(password(b.password),salt);db.prepare('UPDATE customers SET salt=?,password_hash=? WHERE id=?').run(salt,hashed,s.customer_id);db.prepare('DELETE FROM customer_sessions WHERE customer_id=? AND token_hash<>?').run(s.customer_id,s.token_hash);db.prepare('DELETE FROM password_resets WHERE customer_id=?').run(s.customer_id);json(res,200,{ok:true});return true;}
  if(route==='/api/account/orders'&&req.method==='GET'){const s=requireUser(req);json(res,200,db.prepare('SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC LIMIT 100').all(s.customer_id).map(o=>({id:o.id,status:o.status,items:JSON.parse(o.items),total:o.total,subtotal:o.subtotal,discount:o.discount,fulfillment:o.fulfillment,delivery_time:o.delivery_time,delivery_scheduled:o.delivery_scheduled,delivery_note:o.delivery_note,received_at:o.received_at,created_at:o.created_at,cancellation_requested:o.cancellation_requested,cancellation_reason:o.cancellation_reason,cancellation_response:o.cancellation_response,history:orderHistory(db,o.id),payment:paymentSummary(db,o)})));return true;}
  if(route==='/api/account/orders/received'&&req.method==='POST'){const s=requireUser(req),b=await body(req);json(res,200,acknowledgeReceipt(db,text(b.id,1,40,'Mã đơn'),s.customer_id));return true;}
  if(route==='/api/account/orders/cancel'&&req.method==='POST'){rate(req,'account-cancel',10);const s=requireUser(req),b=await body(req),id=text(b.id,1,40,'Mã đơn');if(!db.prepare('SELECT 1 FROM orders WHERE id=? AND customer_id=?').get(id,s.customer_id))fail(404,'Không tìm thấy đơn của tài khoản này');json(res,200,requestCancellation(db,id,text(b.reason||'Khách yêu cầu hủy',2,500,'Lý do hủy')));return true;}

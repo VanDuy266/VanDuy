@@ -12,6 +12,8 @@ services:
       FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-}
       ZALO_APP_ID: ${ZALO_APP_ID:-}
       ZALO_APP_SECRET: ${ZALO_APP_SECRET:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
       STORE_NAME: Xe Điện Đức Tú
     volumes:
       - store_data:/app/data
