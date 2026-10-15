@@ -1,4 +1,4 @@
-# Xe Điện Đức Tú — V2 nhiều trang (2.6.0)
+# Xe Điện Đức Tú — V3.0 Beta (3.0.0-beta.1)
 
 Website bán xe điện Yadea cho Đức Tú Phú Quốc, dùng Node.js 24 + SQLite tích hợp. Không cần npm install, không có thư viện ngoài. Giao diện navy/vàng sử dụng logo do chủ cửa hàng cung cấp.
 
@@ -226,3 +226,16 @@ V2.5 vượt qua 12 bài npm test và trình duyệt desktop/390px: menu về nh
 - Xem [hướng dẫn kết nối mạng xã hội](HUONG-DAN-DANG-NHAP-MANG-XA-HOI.md). Chưa có App ID/Secret/tên miền được xác nhận nên chưa kiểm thử đăng nhập thật.
 
 Kiểm thử V2.6: 13 bài npm test; trình duyệt kiểm tra chọn màu 12 mẫu, 5 bộ góc, thông báo, một nút xác nhận, khách nhận xe/admin thấy trạng thái, đổi mật khẩu một ký tự rồi đăng nhập lại và dữ liệu mật khẩu sau restart.
+
+
+## V3.0 Beta: giao diện cửa hàng, mobile và đánh giá sau mua
+
+- Thiết kế cửa hàng xanh navy/trắng, thẻ sản phẩm và nhóm dịch vụ riêng; mobile có thanh điều hướng 5 mục, bộ lọc và danh mục thu gọn.
+- Trang xe có Quay lại danh mục (giữ bộ lọc khi quay về từ danh mục), các liên kết Tổng quan / Thông số / Đánh giá.
+- Tài khoản có đơn `delivered` chứa đúng product ID mới gửi được đánh giá 1–5 sao và bình luận 10–1500 ký tự; mỗi tài khoản đánh giá mỗi mẫu một lần. Không tự gắn đơn khách vãng lai bằng số điện thoại chưa xác minh.
+- Đánh giá hiển thị ngay; admin tại Tổng quan có thể phản hồi và ẩn/hiện. Nội dung bị ẩn không vào điểm trung bình hoặc danh sách công khai. Nội dung được hiển thị như văn bản, không thực thi HTML. Không tạo đánh giá giả. API công khai phân trang 50 đánh giá và chỉ hiển thị tên gọi, không email/số điện thoại/mã đơn.
+- Vẫn sử dụng dữ liệu SQLite hiện có; bảng đánh giá được tạo bổ sung, không xóa dữ liệu. Trước khi nâng cấp, dừng server và sao lưu nguyên thư mục `data`. Thay mã nguồn, giữ `data`, chạy lại rồi Ctrl+F5.
+- `SITE_URL` phải khớp địa chỉ mở website; biến môi trường phải đặt cùng cửa sổ chạy server. Quick Tunnel đổi hostname thì cần cập nhật cả SITE_URL và cấu hình/xác thực OAuth ở nhà cung cấp.
+- Bản Beta chưa kết nối cổng thu tiền thật hoặc tự cấp tài khoản OAuth; các giới hạn nguồn ảnh 360 và merchant đã ghi ở trên vẫn áp dụng.
+
+Kiểm tra: `npm test` gồm kiểm tra quyền mua hàng, CSRF, chống đánh giá trùng, giới hạn sao, ẩn/hiện và phản hồi admin. Ảnh giao diện V3 nằm trong `docs/screenshots/v3-*.png`.

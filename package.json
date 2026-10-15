@@ -1,6 +1,6 @@
 {
   "name": "duc-tu-store",
-  "version": "2.6.0",
+  "version": "3.0.0-beta.1",
   "private": true,
   "description": "Electric scooter storefront and order management",
   "engines": {

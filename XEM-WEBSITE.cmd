@@ -6,7 +6,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node -p "'Xe Dien Duc Tu - V2, phien ban ' + require('./package.json').version"
+node -p "'Xe Dien Duc Tu - V3.0 Beta, phien ban ' + require('./package.json').version"
 echo Ban se chon mat khau quan tri cua minh. Ghi nho de dang nhap tai /admin.
 echo Giu cua so nay mo khi xem website. Nhan Ctrl+C de dung.
 node launch.js
