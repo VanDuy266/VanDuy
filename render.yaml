@@ -1,0 +1,19 @@
+# Free demonstration only: filesystem/database are ephemeral.
+# See docs/TRIEN-KHAI-RENDER.md before accepting real customers.
+services:
+  - type: web
+    name: ductuphuquoc
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /tmp/duc-tu-data
+      - key: SITE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
