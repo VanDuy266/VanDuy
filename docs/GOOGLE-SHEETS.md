@@ -106,3 +106,32 @@ Sau khi khôi phục bản sao lưu hoặc ghi dữ liệu mới, backend chụp
 Code kiểm tra dấu quản lý ở A1 trước khi sửa tab đã có. Nếu tab cùng tên chứa dữ liệu khác, **không ghi đè**; đổi tên tab thủ công đó để giữ dữ liệu, rồi lưu lại nội dung trong admin. Không xóa/sửa hàng đánh dấu trong tab hệ thống. Dòng 2 là tiêu đề, dữ liệu từ dòng 3.
 
 Các bảng được cập nhật bằng `stringValue`/`numberValue`, nên tên hoặc ghi chú khách bắt đầu bằng `=` được giữ là văn bản, không thực thi công thức. Cập nhật toàn vùng xóa các dòng cũ dư thừa. Không cắt im lặng bản xuất; vượt 2 MB thì báo `viewsError`, bản sao lưu vẫn có giới hạn riêng 1 MB nén. Chỉ hiện đường dẫn ảnh, không lưu file ảnh trong ô.
+
+## Nhập thay đổi từ Sheet về website
+
+Đã có luồng nhập sản phẩm riêng với xem trước và xác nhận của **chủ cửa hàng**. Không tự lấy mọi thay đổi trong Sheet để chạy lên web.
+
+### Cách dùng
+
+1. Chờ triển khai phiên bản mới. Khi sao lưu/xuất bảng hoạt động, code tự tạo **Nhap_SanPham** từ dữ liệu hiện tại nếu tab này chưa có. Những lần lưu tiếp theo **không tự ghi đè tab nhập**, nhằm giữ sửa nháp.
+2. Trong admin → **Cài đặt**, phần **Nhập sản phẩm từ Google Sheets**, bấm **Tạo lại bảng nhập từ website** trước một đợt sửa mới. Nút yêu cầu xác nhận vì thay thế sửa nháp của tab Nhap_SanPham. Dữ liệu website không đổi ở bước này.
+3. Mở Nhap_SanPham: hàng 1 là dấu quản lý/hướng dẫn, hàng 2 là tiêu đề, từ hàng 3 là xe. Sửa ô cần thay, rồi đặt cột **Hành động** thành **Cập nhật** cho đúng dòng. Dòng **Giữ nguyên** không được nhập.
+4. Quay lại admin Cài đặt → **Xem trước thay đổi**. Kiểm tra giá/tồn kho trước và sau của từng xe.
+5. Bấm **Áp dụng vào website**. API cập nhật trong transaction, chụp và sao lưu database trước khi báo thành công. Web_SanPham sẽ phản ánh dữ liệu mới ở lần xuất tương ứng.
+6. Sau khi dùng xong, tạo lại bảng nhập từ website trước đợt chỉnh sửa khác để lấy mốc giá/tồn kho mới nhất. Thao tác import không tự xóa các sửa nháp còn lại.
+
+### Cột được sửa
+
+Hãng, tên xe, danh mục (`city`, `sport`, `compact`, `accessory`), giá bán nguyên VND, giá so sánh nguyên/để trống, tồn kho nguyên/để trống nếu cần xác nhận, hiển thị (`Đang bán` hoặc `Ẩn`), mô tả, ghi chú giá.
+
+Giá tối đa 1 tỷ VND, tồn tối đa 10.000; không nhập công thức, dấu tiền tệ hoặc số tiền dạng văn bản có dấu phân cách. Ô số thực sự của Sheet vẫn được đọc đúng dù Sheets đang định dạng hiển thị tiền tệ.
+
+**Không sửa Mã xe, hàng tiêu đề hoặc Mốc dữ liệu.** Chỉ sửa xe có sẵn, không thêm/xóa xe, không đổi ảnh/bộ ảnh, giá theo màu/phiên bản, tài khoản, đơn hàng, cấu hình thanh toán hay tư vấn bằng chức năng này. Những dữ liệu đó tiếp tục quản lý theo nghiệp vụ trong admin. Bỏ một dòng trong Sheet không xóa sản phẩm trên web. Giá gốc đổi không làm đổi giá đã chốt trong đơn cũ.
+
+### Chống ghi đè dữ liệu mới
+
+Mỗi dòng có mốc SHA-256 của các trường sản phẩm lúc lấy mẫu. Nếu giá/tồn kho đã đổi trong admin hoặc có đơn đặt làm thay đổi tồn kho, bản nhập cũ bị từ chối; tạo lại bảng nhập rồi sửa trên dữ liệu mới. Nếu Sheet hoặc database đổi sau bước xem trước, lúc xác nhận cũng bị từ chối để bạn xem trước lại.
+
+Bản xem trước gắn với phiên chủ cửa hàng, hết hạn sau 10 phút, tối đa 200 xe/thao tác và bảng nhập tối đa 1000 dòng sản phẩm. Toàn bộ thay đổi được kiểm tra trước và áp dụng cùng transaction. Nhấn lại cùng mã xác nhận trong phiên không áp dụng lần hai. Có kiểm tra Origin, session, vai trò owner và CSRF như các thao tác quản trị khác.
+
+Các endpoint POST: `/api/admin/sheets-products/preview`, `/apply`, `/reset`. Không cần thêm secret hoặc biến môi trường mới; dùng quyền Sheet hiện tại. Chưa kiểm thử với dữ liệu Google live, đã kiểm thử luồng HTTP bằng transport giả, gồm sửa Sheet → xem trước → áp dụng → xóa data → khôi phục giá đã nhập.

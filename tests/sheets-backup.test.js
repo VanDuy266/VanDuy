@@ -31,7 +31,7 @@ test('missing remote snapshot fails closed unless first-time initialization is e
 test('real website restores its catalog, customer login and order after deleting its entire local data directory',async()=>{
  const {spawn}=require('node:child_process');const dir=temp(),data=path.join(dir,'data'),remote=path.join(dir,'remote.json'),preload=path.join(dir,'mock-google.cjs'),base='http://127.0.0.1:32183';let child;
  const modulePath=path.join(__dirname,'..','sheets-backup.js');
- fs.writeFileSync(preload,`const fs=require('node:fs');require(${JSON.stringify(modulePath)}).createGoogleTransport=()=>({ensure:async()=>{},read:async()=>fs.existsSync(${JSON.stringify(remote)})?JSON.parse(fs.readFileSync(${JSON.stringify(remote)},'utf8')):[],write:async rows=>fs.writeFileSync(${JSON.stringify(remote)},JSON.stringify(rows)),writeViews:async views=>fs.writeFileSync(${JSON.stringify(remote+'.views')},JSON.stringify(views))});`);
+ fs.writeFileSync(preload,`const fs=require('node:fs');require(${JSON.stringify(modulePath)}).createGoogleTransport=()=>({ensure:async()=>{},read:async()=>fs.existsSync(${JSON.stringify(remote)})?JSON.parse(fs.readFileSync(${JSON.stringify(remote)},'utf8')):[],write:async rows=>fs.writeFileSync(${JSON.stringify(remote)},JSON.stringify(rows)),readProductInput:async()=>JSON.parse(fs.readFileSync(${JSON.stringify(remote+'.views')},'utf8')).find(v=>v.key==='import-products').values,writeViews:async views=>{const old=fs.existsSync(${JSON.stringify(remote+'.views')})?JSON.parse(fs.readFileSync(${JSON.stringify(remote+'.views')},'utf8')):[];for(const v of views){const i=old.findIndex(o=>o.key===v.key);if(i<0)old.push(v);else if(!v.preserveExisting)old[i]=v;}fs.writeFileSync(${JSON.stringify(remote+'.views')},JSON.stringify(old));}});`);
  const start=async first=>{child=spawn(process.execPath,['--require',preload,'server.js'],{cwd:path.join(__dirname,'..'),env:{...process.env,NODE_ENV:'test',PORT:'32183',HOST:'127.0.0.1',SITE_URL:base,ADMIN_PASSWORD:'integration-test-password',DATA_DIR:data,GOOGLE_BACKUP_ENABLED:'true',GOOGLE_BACKUP_INITIALIZE:first?'true':'false',SHEETS_BACKUP_KEY:secret},stdio:['ignore','pipe','pipe']});for(let i=0;i<80;i++){if(child.exitCode!==null)throw Error('Website exited during test startup');try{const r=await fetch(base+'/api/health');if(r.ok)return;}catch{}await new Promise(r=>setTimeout(r,50));}throw Error('Website startup timeout');};
  const stop=async()=>{if(child&&child.exitCode===null){child.kill('SIGTERM');await once(child,'exit');}};
  const call=(route,body,headers={})=>fetch(base+route,{...(body?{method:'POST',body:JSON.stringify(body)}:{}),headers:{'Content-Type':'application/json',Origin:base,...headers}});
@@ -40,6 +40,15 @@ test('real website restores its catalog, customer login and order after deleting
   const admin=await call('/api/admin/login',{password:'integration-test-password'});assert.equal(admin.status,200);const adminCookie=admin.headers.get('set-cookie').split(';')[0],adminCsrf=(await admin.json()).csrf;const auth={Cookie:adminCookie,'X-CSRF-Token':adminCsrf};
   const list=await(await call('/api/admin/products',undefined,auth)).json();const edited={...list[0],price:list[0].price+100000,published:true,gallery:JSON.parse(list[0].gallery),specifications:JSON.parse(list[0].specifications)};assert.equal((await call('/api/admin/products',edited,auth)).status,200);
   const products=await(await call('/api/products')).json();assert.ok(products.length>0);assert.equal(products.find(p=>p.id===edited.id).price,edited.price);assert.ok(fs.existsSync(remote+'.views'));const readable=JSON.parse(fs.readFileSync(remote+'.views','utf8'));assert.ok(readable.some(v=>v.title==='Web_SanPham'&&v.values.length===products.length+2));assert.equal(readable.find(v=>v.title==='Web_SanPham').values.find(row=>row[0]===edited.id)[4],edited.price);assert.ok(!JSON.stringify(readable).includes('password_hash'));assert.ok(!JSON.stringify(readable).includes('ExamplePassword123'));
+  const sheetState=JSON.parse(fs.readFileSync(remote+'.views','utf8')),draft=sheetState.find(v=>v.key==='import-products');const row=draft.values.find(r=>r[0]===edited.id);row[4]=edited.price+200000;row[11]='Cập nhật';fs.writeFileSync(remote+'.views',JSON.stringify(sheetState));
+  assert.equal((await call('/api/admin/sheets-products/preview',{})).status,401);assert.equal((await call('/api/admin/sheets-products/preview',{}, {Cookie:adminCookie})).status,403);
+  const previewResponse=await call('/api/admin/sheets-products/preview',{},auth);assert.equal(previewResponse.status,409); // Admin edit made the original draft stale; no update may be applied.
+  assert.equal((await call('/api/admin/sheets-products/reset',{confirm:false},auth)).status,400);
+  assert.equal((await call('/api/admin/sheets-products/reset',{confirm:true},auth)).status,200);
+  const freshState=JSON.parse(fs.readFileSync(remote+'.views','utf8')),freshDraft=freshState.find(v=>v.key==='import-products');const freshRow=freshDraft.values.find(r=>r[0]===edited.id);freshRow[4]=edited.price+200000;freshRow[11]='Cập nhật';fs.writeFileSync(remote+'.views',JSON.stringify(freshState));
+  const preview=await call('/api/admin/sheets-products/preview',{},auth);assert.equal(preview.status,200);const plan=await preview.json();assert.equal(plan.count,1);
+  assert.equal((await call('/api/admin/sheets-products/apply',{token:plan.token},auth)).status,200);edited.price+=200000;
+  assert.equal((await(await call('/api/products')).json()).find(p=>p.id===edited.id).price,edited.price);
   r=await call('/api/orders',{name:'Nguyen Test',phone:'0901234567',address:'12 Test Street',note:'',consent:true,items:[{id:products[0].id,quantity:1}]},{'Idempotency-Key':'backup-integration-test-request'});assert.equal(r.status,201);const order=await r.json();const exported=JSON.parse(fs.readFileSync(remote+'.views','utf8'));assert.ok(exported.find(v=>v.title==='Web_DonHang').values.some(row=>row[0]===order.id));
   assert.equal((await call('/style.css')).status,200);
   await stop();fs.rmSync(data,{recursive:true,force:true});await start(false);
@@ -72,4 +81,14 @@ test('existing non-managed readable tab is never overwritten',async()=>{
   wrote=true;return Response.json({});
  });
  await assert.rejects(()=>transport.writeViews([{title:'Web_SanPham',key:'products',values:[['DucTuWeb:export:v1:products']]}]),/không ghi đè/);assert.equal(wrote,false);
+});
+test('automatic exports never overwrite an existing editable draft',async()=>{
+ const {generateKeyPairSync}=require('node:crypto');const {privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs8',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});let mutations=0;
+ const transport=createGoogleTransport({GOOGLE_SHEET_ID:'test',GOOGLE_SERVICE_ACCOUNT_EMAIL:'test@example.test',GOOGLE_PRIVATE_KEY:privateKey},async(url,options)=>{
+  if(url.includes('oauth2.googleapis.com'))return Response.json({access_token:'test',expires_in:3600});
+  if(url.includes('fields='))return Response.json({sheets:[{properties:{sheetId:18,title:'Nhap_SanPham',gridProperties:{rowCount:1000,columnCount:12}}}]});
+  if(url.includes('values:batchGet'))return Response.json({valueRanges:[{values:[['DucTuWeb:export:v1:import-products']]}]});
+  mutations++;return Response.json({});
+ });
+ await transport.writeViews([{title:'Nhap_SanPham',key:'import-products',preserveExisting:true,values:[['DucTuWeb:export:v1:import-products']]}]);assert.equal(mutations,0);
 });

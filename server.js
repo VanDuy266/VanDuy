@@ -100,6 +100,7 @@ const reviews=require('./reviews').initializeReviews(db,{accounts,json,body,fail
 const videos=require('./video-media').initializeVideo({session,fail,rate,json,mediaDir,audit:v31.audit});
 const files={'/v31.css':'v31.css','/v31-client.js':'v31-client.js','/v31-admin.js':'v31-admin.js','/admin/v3-1':'admin-pages/v3-1.html','/v3.css':'v3.css','/v3.js':'v3.js','/':'index.html','/index.html':'index.html','/style.css':'style.css','/retail.css':'retail.css','/brand.css':'brand.css','/v2.css':'v2.css','/shop.js':'shop.js','/assets/scooter.svg':'assets/scooter.svg','/admin':'admin.html','/admin/san-pham':'admin-pages/san-pham.html','/admin/don-hang':'admin-pages/don-hang.html','/admin/tu-van':'admin-pages/tu-van.html','/admin/khach-hang':'admin-pages/khach-hang.html','/admin/cai-dat':'admin-pages/cai-dat.html','/admin/thanh-toan':'admin-pages/thanh-toan.html','/admin.js':'admin.js','/admin.css':'admin.css','/viewer.js':'viewer.js','/viewer.css':'viewer.css','/icons.js':'icons.js','/experience.css':'experience.css'};
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
+const sheetImporter=persistence?require('./sheets-import').createImporter({db,read:()=>persistence.readProductInput(),onChanged:(before,after)=>v31.productChanged(before,after)}):null;
 if(persistence)await persistence.flush(db);
 const server=http.createServer(async(req,res)=>{
  // Finalize JSON/redirect responses only after committed database changes have a remote backup.
@@ -149,6 +150,13 @@ const server=http.createServer(async(req,res)=>{
   if(route==='/api/admin/notifications'&&req.method==='GET')return json(res,200,{supportItems:db.prepare("SELECT id,updated_at FROM v31_tickets WHERE status='new' ORDER BY updated_at DESC LIMIT 100").all(),support:db.prepare("SELECT COUNT(*) n FROM v31_tickets WHERE status='new'").get().n,orders:db.prepare("SELECT id,name,created_at FROM orders WHERE status='new' ORDER BY created_at DESC LIMIT 100").all(),consultations:db.prepare("SELECT id,name,created_at FROM consultations WHERE status='new' ORDER BY created_at DESC LIMIT 100").all(),cancellations:db.prepare('SELECT id,name FROM orders WHERE cancellation_requested=1').all()});
   if(route==='/api/admin/reviews'&&req.method==='GET')return json(res,200,reviews.listAdmin());
   if(route==='/api/admin/reviews'&&req.method==='POST')return json(res,200,reviews.moderate(await body(req)));
+  if(route.startsWith('/api/admin/sheets-products/')&&req.method==='POST'){
+   if(s.role!=='owner')fail(403,'Chỉ chủ cửa hàng được nhập dữ liệu từ Sheet.');if(!sheetImporter)fail(503,'Chưa bật kết nối Google Sheets.');rate(req,'sheets-products',10);const action=route.split('/').pop(),b=await body(req);
+   if(action==='preview')return json(res,200,await sheetImporter.preview(s.token));
+   if(action==='apply')return json(res,200,await sheetImporter.apply(s.token,text(b.token,1,100,'Mã xem trước')));
+   if(action==='reset'){if(b.confirm!==true)fail(400,'Cần xác nhận thay thế sửa nháp trong bảng nhập.');await persistence.resetProductInput(db);return json(res,200,{ok:true});}
+   fail(404,'Không có thao tác nhập Sheet này.');
+  }
   if(route==='/api/admin/storage'&&req.method==='GET')return json(res,200,persistence?persistence.status():{enabled:false,synced:false});
   if(route==='/api/admin/session'&&req.method==='GET')return json(res,200,{csrf:s.csrf,role:s.role||'owner',username:s.username||''});
   if(route==='/api/admin/logout'&&req.method==='POST'){sessions.delete(s.token);res.setHeader('Set-Cookie','volt_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');return json(res,200,{ok:true});}
