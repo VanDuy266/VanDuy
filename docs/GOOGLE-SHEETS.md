@@ -135,3 +135,48 @@ Mỗi dòng có mốc SHA-256 của các trường sản phẩm lúc lấy mẫu
 Bản xem trước gắn với phiên chủ cửa hàng, hết hạn sau 10 phút, tối đa 200 xe/thao tác và bảng nhập tối đa 1000 dòng sản phẩm. Toàn bộ thay đổi được kiểm tra trước và áp dụng cùng transaction. Nhấn lại cùng mã xác nhận trong phiên không áp dụng lần hai. Có kiểm tra Origin, session, vai trò owner và CSRF như các thao tác quản trị khác.
 
 Các endpoint POST: `/api/admin/sheets-products/preview`, `/apply`, `/reset`. Không cần thêm secret hoặc biến môi trường mới; dùng quyền Sheet hiện tại. Chưa kiểm thử với dữ liệu Google live, đã kiểm thử luồng HTTP bằng transport giả, gồm sửa Sheet → xem trước → áp dụng → xóa data → khôi phục giá đã nhập.
+
+## Nút Cập nhật lên web
+
+Giao diện Cài đặt hiện có nút **Cập nhật lên web** để rút gọn thao tác theo yêu cầu cửa hàng:
+
+1. Sửa xe trong `Nhap_SanPham` và đặt Hành động=`Cập nhật` cho dòng đó.
+2. Vào Admin → Cài đặt → **Cập nhật website từ Google Sheets** → bấm **Cập nhật lên web**.
+3. Chờ báo đã cập nhật và sao lưu. Khách mở mới/tải lại trang để xem thông tin mới.
+
+Không có đồng bộ nền: chưa bấm nút thì dữ liệu website không đổi. Endpoint owner/CSRF `/api/admin/sheets-products/update` đọc Sheet, kiểm tra toàn bộ dòng và áp dụng trong một transaction, vẫn chờ sao lưu trước khi trả thành công. Luồng preview/apply cũ còn ở API cho khách tích hợp, nhưng không bắt buộc với nút cập nhật mới.
+
+Để thuận tiện sửa tiếp cùng một dòng, database giữ mốc nguồn và trạng thái sản phẩm sau lần nhập. Bạn có thể tiếp tục đổi giá ở cùng dòng rồi bấm nút lại. Nếu admin hoặc đơn hàng đã thay giá/tồn kho khác đi, mốc không còn khớp: thao tác bị chặn, cần tạo lại bảng nhập để tránh đảo ngược dữ liệu mới. Bảng mốc cũng nằm trong snapshot mã hóa và khôi phục sau restart.
+
+Không thay đổi các khóa Google/Render. Sau deploy, tải lại trang admin để lấy nút mới. Kiểm thử HTTP xác nhận nút cập nhật không cần preview, từ chối thiếu session/CSRF, sửa đúng giá trên catalog và khôi phục giá đó sau khi xóa data rồi restart.
+
+## Bấm Cập nhật ngay trong Google Sheet
+
+Mã Apps Script chuẩn bị tại `google-sheets/Code.gs`, manifest tùy chọn tại `google-sheets/appsscript.json`. Phần này cần cài một lần trong Sheet của chủ cửa hàng, không tự cài vào tài khoản Google khi chỉ cập nhật GitHub.
+
+### Thiết lập một lần
+
+1. Render Environment: thêm **SHEETS_UPDATE_TOKEN**, Generate một chuỗi ngẫu nhiên ít nhất 32 ký tự. Đây là khóa riêng chỉ cho nút cập nhật, **không dùng lại SHEETS_BACKUP_KEY, GOOGLE_PRIVATE_KEY hay mật khẩu admin**. Lưu/redeploy sau khi mã có endpoint nút cập nhật đã nằm trên main. Không gửi khóa vào chat.
+2. Mở đúng bảng riêng tư của cửa hàng → **Tiện ích mở rộng / Extensions → Apps Script** (script phải gắn với bảng này).
+3. Thay mã mẫu trong Code.gs bằng toàn bộ nội dung `google-sheets/Code.gs` từ repo, rồi Save. Không đặt secret trực tiếp trong mã.
+4. Apps Script → **Project Settings → Script Properties → Add script property**:
+   - `WEB_APP_URL`: `https://ductuphuquoc.onrender.com` (không có đường dẫn phía sau).
+   - `SHEETS_UPDATE_TOKEN`: **đúng cùng chuỗi** đã đặt trên Render.
+5. Có thể bật tùy chọn hiện appsscript.json và dùng manifest mẫu để chỉ cấp quyền bảng hiện tại và gửi request HTTPS. Mở lại Google Sheet để menu **Đức Tú** xuất hiện. Lần đầu chạy, đăng nhập và cấp quyền cho script của chính bạn sau khi kiểm tra nguồn mã.
+6. Dùng **Đức Tú → Cập nhật lên web**. Để có nút vẽ ngay trên bảng: **Insert → Drawing** → tạo hình ghi `CẬP NHẬT LÊN WEB` → Save and close → menu ba chấm của hình → **Assign script** → nhập `capNhatLenWeb` (không thêm dấu ngoặc).
+
+Không cần deploy Apps Script thành Web App, không cần công khai bảng hoặc tạo trigger chạy tự động. Nút vẽ/menu Apps Script sử dụng trên trình duyệt máy tính; ứng dụng Google Sheets trên điện thoại có giới hạn thực thi nút.
+
+### Sử dụng
+
+Sửa `Nhap_SanPham`, đặt Hành động=`Cập nhật`, chờ Sheet lưu rồi bấm nút. Script gọi backend bằng HTTPS, website tự đọc bảng đã cấu hình và kiểm tra dữ liệu như nút trong admin. Script báo số xe đã cập nhật khi backend xác nhận và sao lưu thành công. Khách mở mới/tải lại trang để xem. Không có đồng bộ nền và không sửa các tab `Web_*`/`AppBackup`.
+
+### Bảo vệ endpoint
+
+`POST /api/sheets/products/update` chỉ nhận yêu cầu HMAC-SHA256 hợp lệ, gắn đúng Sheet ID, action, timestamp trong 5 phút và nonce dùng một lần. Endpoint này không dùng session browser vì UrlFetchApp chạy bên Google. Các endpoint admin cũ vẫn yêu cầu session, Origin và CSRF như trước. Người biết URL không có quyền kích hoạt cập nhật nếu thiếu khóa. Shared key không cho tải dữ liệu admin hoặc đổi mật khẩu.
+
+Chỉ những người được phép quản lý sản phẩm mới được cấp Editor cho Sheet/script vì họ có thể truy cập Script Properties. Không để token trong ô bảng hoặc commit lên repo. Nếu lộ token, đổi token Render và Script Properties đồng thời. Không đổi khóa mã hóa backup khi xoay token nút.
+
+Script chặn nhấn chồng bằng document lock. Render Free có thể cần thời gian thức dậy; lỗi mạng không khẳng định cập nhật chưa từng xảy ra. Kiểm tra giá/mã dữ liệu hiện tại trước khi thử lại. Backend áp dụng lại cùng nội dung là no-op; nonce chống replay trong bộ nhớ tiến trình, không phải kho replay phân tán. Chỉ chạy một instance như phần backup.
+
+Chưa cài/ủy quyền Apps Script trong Google Sheet live. Đã kiểm thử chữ ký giữa cách mã hóa byte của Apps Script và Node, chữ ký sai, sai sheet/action, hết hạn, replay, cùng luồng HTTP không có cookie/Origin nhưng có chữ ký đúng.

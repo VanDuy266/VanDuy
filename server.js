@@ -100,6 +100,7 @@ const reviews=require('./reviews').initializeReviews(db,{accounts,json,body,fail
 const videos=require('./video-media').initializeVideo({session,fail,rate,json,mediaDir,audit:v31.audit});
 const files={'/v31.css':'v31.css','/v31-client.js':'v31-client.js','/v31-admin.js':'v31-admin.js','/admin/v3-1':'admin-pages/v3-1.html','/v3.css':'v3.css','/v3.js':'v3.js','/':'index.html','/index.html':'index.html','/style.css':'style.css','/retail.css':'retail.css','/brand.css':'brand.css','/v2.css':'v2.css','/shop.js':'shop.js','/assets/scooter.svg':'assets/scooter.svg','/admin':'admin.html','/admin/san-pham':'admin-pages/san-pham.html','/admin/don-hang':'admin-pages/don-hang.html','/admin/tu-van':'admin-pages/tu-van.html','/admin/khach-hang':'admin-pages/khach-hang.html','/admin/cai-dat':'admin-pages/cai-dat.html','/admin/thanh-toan':'admin-pages/thanh-toan.html','/admin.js':'admin.js','/admin.css':'admin.css','/viewer.js':'viewer.js','/viewer.css':'viewer.css','/icons.js':'icons.js','/experience.css':'experience.css'};
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
+const verifySheetButton=require('./sheets-button').createSheetButtonVerifier({secret:process.env.SHEETS_UPDATE_TOKEN,sheetId:process.env.GOOGLE_SHEET_ID});
 const sheetImporter=persistence?require('./sheets-import').createImporter({db,read:()=>persistence.readProductInput(),onChanged:(before,after)=>v31.productChanged(before,after)}):null;
 if(persistence)await persistence.flush(db);
 const server=http.createServer(async(req,res)=>{
@@ -110,6 +111,10 @@ const server=http.createServer(async(req,res)=>{
  if(production)res.setHeader('Strict-Transport-Security','max-age=31536000');
  try{
  const url=new URL(req.url,'http://localhost');const route=url.pathname;
+ if(route==='/api/sheets/products/update'&&req.method==='POST'){
+  rate(req,'signed-sheet-update',10);const signed=await body(req);verifySheetButton(signed,req.headers['x-sheets-signature']);if(!sheetImporter)fail(503,'Chưa bật kết nối Google Sheets.');return json(res,200,await sheetImporter.update());
+ }
+
  if(!['GET','HEAD'].includes(req.method)&&req.headers.origin!==siteOrigin)fail(403,'Nguồn yêu cầu không hợp lệ. Website đang dùng '+siteOrigin+'. Mở đúng địa chỉ này hoặc cập nhật cấu hình link rồi khởi động lại website.');
  if(persistence&&req.method==='POST'&&['/api/admin/upload','/api/admin/upload-video','/api/v31/member/attachment'].includes(route))fail(409,'Chế độ sao lưu Sheet không lưu tệp ảnh/video tải lên. Dùng ảnh có sẵn trong kho mã hoặc kho lưu trữ ảnh bền vững.');
  if(await videos.handle(req,res,url))return;
@@ -152,6 +157,7 @@ const server=http.createServer(async(req,res)=>{
   if(route==='/api/admin/reviews'&&req.method==='POST')return json(res,200,reviews.moderate(await body(req)));
   if(route.startsWith('/api/admin/sheets-products/')&&req.method==='POST'){
    if(s.role!=='owner')fail(403,'Chỉ chủ cửa hàng được nhập dữ liệu từ Sheet.');if(!sheetImporter)fail(503,'Chưa bật kết nối Google Sheets.');rate(req,'sheets-products',10);const action=route.split('/').pop(),b=await body(req);
+   if(action==='update')return json(res,200,await sheetImporter.update());
    if(action==='preview')return json(res,200,await sheetImporter.preview(s.token));
    if(action==='apply')return json(res,200,await sheetImporter.apply(s.token,text(b.token,1,100,'Mã xem trước')));
    if(action==='reset'){if(b.confirm!==true)fail(400,'Cần xác nhận thay thế sửa nháp trong bảng nhập.');await persistence.resetProductInput(db);return json(res,200,{ok:true});}

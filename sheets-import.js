@@ -6,7 +6,7 @@ const FIELDS=['brand','name','category','price','compare_price','stock','publish
 const digest=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const fingerprint=p=>digest([p.id,...FIELDS.map(k=>p[k]??null)]);
 const fail=(status,message)=>{throw Object.assign(Error(message),{status});};
-function inputView(db){return {title:'Nhap_SanPham',key:'import-products',preserveExisting:true,values:[[MARKER,'Sửa dòng cần đổi, đặt Hành động = Cập nhật; sau đó vào admin xem trước và áp dụng.'],HEADERS,...db.prepare('SELECT * FROM products ORDER BY id').all().map(p=>[p.id,p.brand,p.name,p.category,p.price,p.compare_price??'',p.stock??'',p.published?'Đang bán':'Ẩn',p.description,p.price_note,fingerprint(p),'Giữ nguyên'])]};}
+function inputView(db){return {title:'Nhap_SanPham',key:'import-products',preserveExisting:true,values:[[MARKER,'Sửa xong đặt Hành động = Cập nhật, rồi bấm Cập nhật lên web trong admin.'],HEADERS,...db.prepare('SELECT * FROM products ORDER BY id').all().map(p=>[p.id,p.brand,p.name,p.category,p.price,p.compare_price??'',p.stock??'',p.published?'Đang bán':'Ẩn',p.description,p.price_note,fingerprint(p),'Giữ nguyên'])]};}
 function parseInput(rows,db){
  if(rows?.[0]?.[0]!==MARKER||HEADERS.some((h,i)=>rows[1]?.[i]!==h))fail(422,'Bảng Nhap_SanPham sai tiêu đề. Tạo lại bảng nhập từ admin.');
  if(rows.length>1002)fail(422,'Bảng nhập tối đa 1000 sản phẩm.');
@@ -20,24 +20,25 @@ function parseInput(rows,db){
   if(!['city','sport','compact','accessory'].includes(next.category))fail(422,`Dòng ${line}: danh mục phải là city, sport, compact hoặc accessory.`);
   if(!['Đang bán','Ẩn'].includes(r[7]))fail(422,`Dòng ${line}: hiển thị phải là Đang bán hoặc Ẩn.`);next.published=r[7]==='Đang bán'?1:0;
   const changes=FIELDS.filter(k=>old[k]!==next[k]);if(!changes.length)continue;
-  if(r[10]!==fingerprint(old))fail(409,`Dòng ${line}: xe đã đổi trong admin hoặc tồn kho đã thay đổi. Tạo lại bảng nhập và nhập lại thay đổi.`);
-  result.push({id,baseline:fingerprint(old),next,changes:changes.map(field=>({field,before:old[field],after:next[field]}))});
+  const savedState=db.prepare("SELECT 1 FROM sqlite_master WHERE name='sheets_import_state'").get()?db.prepare('SELECT * FROM sheets_import_state WHERE product_id=?').get(id):null;
+  if(r[10]!==fingerprint(old)&&!(savedState?.source_baseline===r[10]&&savedState.current_fingerprint===fingerprint(old)))fail(409,`Dòng ${line}: xe đã đổi trong admin hoặc tồn kho đã thay đổi. Tạo lại bảng nhập và nhập lại thay đổi.`);
+  result.push({id,sourceBaseline:r[10],baseline:fingerprint(old),next,changes:changes.map(field=>({field,before:old[field],after:next[field]}))});
  }
  if(result.length>200)fail(422,'Mỗi lần áp dụng tối đa 200 xe.');return result;
 }
 function createImporter({db,read,onChanged=()=>{},now=Date.now}){
+ db.exec('CREATE TABLE IF NOT EXISTS sheets_import_state(product_id INTEGER PRIMARY KEY,source_baseline TEXT NOT NULL,current_fingerprint TEXT NOT NULL)');
  const previews=new Map();
  const clean=()=>{for(const [token,p] of previews)if(p.expires<now())previews.delete(token);};
+ function execute(plan){db.exec('BEGIN IMMEDIATE');try{
+  for(const item of plan){const current=db.prepare('SELECT * FROM products WHERE id=?').get(item.id);if(!current||fingerprint(current)!==item.baseline)fail(409,'Sản phẩm/tồn kho đã thay đổi sau xem trước. Không áp dụng; hãy xem trước lại.');}
+  for(const item of plan){const before=db.prepare('SELECT * FROM products WHERE id=?').get(item.id);db.prepare('UPDATE products SET brand=?,name=?,category=?,price=?,compare_price=?,stock=?,published=?,description=?,price_note=? WHERE id=?').run(...FIELDS.map(k=>item.next[k]),item.id);const after=db.prepare('SELECT * FROM products WHERE id=?').get(item.id);db.prepare('INSERT INTO sheets_import_state VALUES(?,?,?) ON CONFLICT(product_id) DO UPDATE SET source_baseline=excluded.source_baseline,current_fingerprint=excluded.current_fingerprint').run(item.id,item.sourceBaseline,fingerprint(after));onChanged(before,after);}
+  db.exec('COMMIT');return {updated:plan.length};
+ }catch(error){db.exec('ROLLBACK');throw error;}}
  return {
+  async update(){return execute(parseInput(await read(),db));},
   async preview(owner){clean();if(previews.size>=20)fail(429,'Có quá nhiều bản xem trước. Thử lại sau 10 phút.');const rows=await read();const plan=parseInput(rows,db);const token=crypto.randomBytes(24).toString('hex');previews.set(token,{owner,source:digest(rows),plan,expires:now()+600000,applied:false});return {token,count:plan.length,changes:plan.map(p=>({id:p.id,name:p.next.name,fields:p.changes}))};},
-  async apply(owner,token){clean();const p=previews.get(token);if(!p||p.owner!==owner)fail(409,'Bản xem trước hết hạn hoặc không thuộc phiên này. Hãy xem trước lại.');if(p.applied)return {updated:p.plan.length,repeated:true};
-   if(digest(await read())!==p.source)fail(409,'Sheet đã thay đổi sau bước xem trước. Hãy xem trước lại.');
-   db.exec('BEGIN IMMEDIATE');try{
-    for(const item of p.plan){const current=db.prepare('SELECT * FROM products WHERE id=?').get(item.id);if(!current||fingerprint(current)!==item.baseline)fail(409,'Sản phẩm/tồn kho đã thay đổi sau xem trước. Không áp dụng; hãy xem trước lại.');}
-    for(const item of p.plan){const before=db.prepare('SELECT * FROM products WHERE id=?').get(item.id);db.prepare('UPDATE products SET brand=?,name=?,category=?,price=?,compare_price=?,stock=?,published=?,description=?,price_note=? WHERE id=?').run(...FIELDS.map(k=>item.next[k]),item.id);onChanged(before,db.prepare('SELECT * FROM products WHERE id=?').get(item.id));}
-    db.exec('COMMIT');p.applied=true;return {updated:p.plan.length};
-   }catch(error){db.exec('ROLLBACK');throw error;}
-  }
+  async apply(owner,token){clean();const p=previews.get(token);if(!p||p.owner!==owner)fail(409,'Bản xem trước hết hạn hoặc không thuộc phiên này. Hãy xem trước lại.');if(p.applied)return {updated:p.plan.length,repeated:true};if(digest(await read())!==p.source)fail(409,'Sheet đã thay đổi sau bước xem trước. Hãy xem trước lại.');const result=execute(p.plan);p.applied=true;return result;}
  };
 }
 module.exports={inputView,parseInput,createImporter,fingerprint,HEADERS,MARKER};
