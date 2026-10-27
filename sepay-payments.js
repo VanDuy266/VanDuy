@@ -23,6 +23,7 @@ function initializeSePay(db,{env=process.env,siteUrl,client,onPaid=()=>{}}={}){
  function start(orderId,purpose='balance',{owner=false}={}){
   requireEnabled();if(environment==='sandbox'&&!owner)fail(403,'Thanh toán thử chỉ dành cho chủ cửa hàng.');
   const order=db.prepare('SELECT * FROM orders WHERE id=?').get(orderId);if(!order)fail(404,'Không tìm thấy đơn');
+  if(!owner&&!['online','deposit'].includes(order.payment_plan))fail(409,'Đơn này chọn thanh toán khi nhận xe hoặc tư vấn trả góp, không thanh toán QR trực tuyến.');
   const due=amountDue(order,purpose);
   const old=db.prepare("SELECT * FROM sepay_attempts WHERE order_id=? AND environment=? AND merchant=? AND status IN ('pending','review') ORDER BY created_at DESC LIMIT 1").get(orderId,environment,merchant);
   if(old){if(old.status==='review'||old.amount!==due.amount||old.initial_received!==due.received||old.initial_ledger!==ledger(orderId)||old.purpose!==purpose)fail(409,'Đơn có phiên thanh toán cần đối soát. Không tạo thêm để tránh chuyển trùng.');return{invoice:old.invoice,environment,...gateway.checkout({invoiceNumber:old.invoice,amount:old.amount})};}

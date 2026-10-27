@@ -2,7 +2,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const {DatabaseSync}=require('node:sqlite');
 const {initializeCommerce,paymentSummary}=require('../commerce');const {initializeSePay}=require('../sepay-payments');
 function setup({sandbox=false,fetcher}={}){
- const db=new DatabaseSync(':memory:');db.exec(`PRAGMA foreign_keys=ON;CREATE TABLE orders(id TEXT PRIMARY KEY,total INTEGER,status TEXT,cancellation_requested INTEGER DEFAULT 0);INSERT INTO orders VALUES('V-1',100000,'confirmed',0);`);initializeCommerce(db);
+ const db=new DatabaseSync(':memory:');db.exec(`PRAGMA foreign_keys=ON;CREATE TABLE orders(id TEXT PRIMARY KEY,total INTEGER,status TEXT,cancellation_requested INTEGER DEFAULT 0);INSERT INTO orders VALUES('V-1',100000,'confirmed',0);`);initializeCommerce(db);db.prepare("UPDATE orders SET payment_plan='online'").run();
  let response,queries=0,paid=0;
  const env={SEPAY_PG_ENABLED:'true',SEPAY_PG_ENV:sandbox?'sandbox':'production',SEPAY_PG_MERCHANT_ID:sandbox?'SP-TEST-example':'SP-example',SEPAY_IPN_TOKEN:'a'.repeat(64)};
  const api=initializeSePay(db,{env,siteUrl:'https://store.example',client:{checkout:({invoiceNumber,amount})=>({url:'https://pay.example',fields:{invoiceNumber,amount}}),retrieve:async invoice=>{queries++;return fetcher?fetcher(invoice):response;}},onPaid:()=>paid++});
@@ -41,9 +41,11 @@ test('deposit amount is calculated on server, credited once, then balance can be
  const b=f.api.start('V-1');assert.equal(b.fields.amount,80000);f.respond(b.invoice,{id:'balance1',order_amount:80000});await f.api.verify(b.invoice);assert.equal(paymentSummary(f.db,f.order()).remaining,0);assert.equal(f.paid,2);f.db.close();
 });
 test('same provider order cannot pay two invoices',async()=>{
- const f=setup();const a=f.api.start('V-1');f.respond(a.invoice);await f.api.verify(a.invoice);f.db.exec("INSERT INTO orders VALUES('V-2',100000,'confirmed',0,'cod',NULL,NULL)");const b=f.api.start('V-2');f.respond(b.invoice);await assert.rejects(f.api.verify(b.invoice),{status:409});assert.equal(f.paid,1);f.db.close();
+ const f=setup();const a=f.api.start('V-1');f.respond(a.invoice);await f.api.verify(a.invoice);f.db.exec("INSERT INTO orders VALUES('V-2',100000,'confirmed',0,'online',NULL,NULL)");const b=f.api.start('V-2');f.respond(b.invoice);await assert.rejects(f.api.verify(b.invoice),{status:409});assert.equal(f.paid,1);f.db.close();
 });
 
 test('offsetting manual receipt and refund still require review',async()=>{
  const f=setup(),a=f.api.start('V-1');for(const kind of ['receipt','refund'])f.db.prepare('INSERT INTO payment_records VALUES(?,?,?,?,?,?,?,?)').run(kind,'V-1',10000,kind,kind,'checked',kind,'now');f.respond(a.invoice);assert.equal((await f.api.verify(a.invoice)).status,'review');assert.equal(f.paid,0);assert.equal(paymentSummary(f.db,f.order()).received,0);f.db.close();
 });
+
+test('customer COD and installment orders cannot start online payment',()=>{const f=setup();try{for(const plan of ['cod','installment']){f.db.prepare('UPDATE orders SET payment_plan=?').run(plan);assert.throws(()=>f.api.start('V-1'),{status:409});}assert.equal(f.db.prepare('SELECT COUNT(*) n FROM sepay_attempts').get().n,0);}finally{f.db.close();}});
