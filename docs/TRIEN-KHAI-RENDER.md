@@ -33,3 +33,7 @@ Google/Facebook/Zalo cần cập nhật callback và domain verification sang UR
 ## Kết quả xác minh
 
 Đã kiểm tra ứng dụng cục bộ với NODE_ENV=production, origin HTTPS, DATA_DIR tạm, health và cookie admin Secure. Cấu hình không tạo disk hay gói trả phí. Live deploy và URL cuối chỉ được xác nhận sau khi tài khoản Render tạo dịch vụ và hiển thị Live; không coi link Blueprint là link website đã chạy.
+
+## Sao lưu Google Sheets tùy chọn
+
+Xem [GOOGLE-SHEETS.md](GOOGLE-SHEETS.md) để bật snapshot SQLite mã hóa cho bản Free. Không bật trước khi có khóa và đã bảo vệ dữ liệu hiện tại. Cơ chế này chưa thay kho lưu file ảnh/video và không cho sửa giá trực tiếp trong Sheet.

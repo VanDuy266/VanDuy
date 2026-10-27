@@ -15,7 +15,11 @@ const adminPassword=process.env.ADMIN_PASSWORD||'';
 const siteUrl=process.env.SITE_URL||(fs.existsSync(path.join(__dirname,'.site-url'))?fs.readFileSync(path.join(__dirname,'.site-url'),'utf8').trim():'')||`http://localhost:${port}`;
 const siteOrigin=new URL(siteUrl).origin;
 if(production&&!siteUrl.startsWith('https://'))throw Error('Production SITE_URL must use HTTPS');
+async function boot(){
 const dataDir=process.env.DATA_DIR||path.join(__dirname,'data');
+const backupEnabled=process.env.GOOGLE_BACKUP_ENABLED==='true';
+const persistence=backupEnabled?require('./sheets-backup').createPersistence({transport:require('./sheets-backup').createGoogleTransport(),secret:process.env.SHEETS_BACKUP_KEY,file:path.join(dataDir,'store.sqlite'),allowEmpty:process.env.GOOGLE_BACKUP_INITIALIZE==='true'}):null;
+if(persistence){await persistence.restore();console.log('Đã kiểm tra/khôi phục bản sao lưu Google Sheets.');}
 fs.mkdirSync(dataDir,{recursive:true,mode:0o700});
 const db=new DatabaseSync(path.join(dataDir,'store.sqlite'));
 db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
@@ -96,13 +100,17 @@ const reviews=require('./reviews').initializeReviews(db,{accounts,json,body,fail
 const videos=require('./video-media').initializeVideo({session,fail,rate,json,mediaDir,audit:v31.audit});
 const files={'/v31.css':'v31.css','/v31-client.js':'v31-client.js','/v31-admin.js':'v31-admin.js','/admin/v3-1':'admin-pages/v3-1.html','/v3.css':'v3.css','/v3.js':'v3.js','/':'index.html','/index.html':'index.html','/style.css':'style.css','/retail.css':'retail.css','/brand.css':'brand.css','/v2.css':'v2.css','/shop.js':'shop.js','/assets/scooter.svg':'assets/scooter.svg','/admin':'admin.html','/admin/san-pham':'admin-pages/san-pham.html','/admin/don-hang':'admin-pages/don-hang.html','/admin/tu-van':'admin-pages/tu-van.html','/admin/khach-hang':'admin-pages/khach-hang.html','/admin/cai-dat':'admin-pages/cai-dat.html','/admin/thanh-toan':'admin-pages/thanh-toan.html','/admin.js':'admin.js','/admin.css':'admin.css','/viewer.js':'viewer.js','/viewer.css':'viewer.css','/icons.js':'icons.js','/experience.css':'experience.css'};
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
+if(persistence)await persistence.flush(db);
 const server=http.createServer(async(req,res)=>{
+ // Finalize JSON/redirect responses only after committed database changes have a remote backup.
+ if(persistence)persistence.attach(res,db);
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
  if(production)res.setHeader('Strict-Transport-Security','max-age=31536000');
  try{
  const url=new URL(req.url,'http://localhost');const route=url.pathname;
  if(!['GET','HEAD'].includes(req.method)&&req.headers.origin!==siteOrigin)fail(403,'Nguồn yêu cầu không hợp lệ. Website đang dùng '+siteOrigin+'. Mở đúng địa chỉ này hoặc cập nhật cấu hình link rồi khởi động lại website.');
+ if(persistence&&req.method==='POST'&&['/api/admin/upload','/api/admin/upload-video','/api/v31/member/attachment'].includes(route))fail(409,'Chế độ sao lưu Sheet không lưu tệp ảnh/video tải lên. Dùng ảnh có sẵn trong kho mã hoặc kho lưu trữ ảnh bền vững.');
  if(await videos.handle(req,res,url))return;
  if(await staff.handle(req,res,url))return;
  if(await v31.handle(req,res,url))return;
@@ -141,6 +149,7 @@ const server=http.createServer(async(req,res)=>{
   if(route==='/api/admin/notifications'&&req.method==='GET')return json(res,200,{supportItems:db.prepare("SELECT id,updated_at FROM v31_tickets WHERE status='new' ORDER BY updated_at DESC LIMIT 100").all(),support:db.prepare("SELECT COUNT(*) n FROM v31_tickets WHERE status='new'").get().n,orders:db.prepare("SELECT id,name,created_at FROM orders WHERE status='new' ORDER BY created_at DESC LIMIT 100").all(),consultations:db.prepare("SELECT id,name,created_at FROM consultations WHERE status='new' ORDER BY created_at DESC LIMIT 100").all(),cancellations:db.prepare('SELECT id,name FROM orders WHERE cancellation_requested=1').all()});
   if(route==='/api/admin/reviews'&&req.method==='GET')return json(res,200,reviews.listAdmin());
   if(route==='/api/admin/reviews'&&req.method==='POST')return json(res,200,reviews.moderate(await body(req)));
+  if(route==='/api/admin/storage'&&req.method==='GET')return json(res,200,persistence?persistence.status():{enabled:false,synced:false});
   if(route==='/api/admin/session'&&req.method==='GET')return json(res,200,{csrf:s.csrf,role:s.role||'owner',username:s.username||''});
   if(route==='/api/admin/logout'&&req.method==='POST'){sessions.delete(s.token);res.setHeader('Set-Cookie','volt_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');return json(res,200,{ok:true});}
   if(route==='/api/admin/products'&&req.method==='GET')return json(res,200,db.prepare('SELECT * FROM products ORDER BY id').all());
@@ -200,3 +209,6 @@ server.on('error',error=>{console.error(error.code==='EADDRINUSE'?`Cổng ${port
 server.requestTimeout=120000;server.headersTimeout=10000;
 server.listen(port,process.env.HOST||'0.0.0.0',()=>console.log(`Xe Dien Duc Tu listening on port ${port}`));
 for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>server.close(()=>{db.close();process.exit(0);}));
+
+}
+boot().catch(error=>{console.error('Không khởi động được: '+error.message);process.exitCode=1;});
