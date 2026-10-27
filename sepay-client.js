@@ -8,10 +8,10 @@
   document.body.append(form);form.submit();
  }
  window.ducTuSePay={submit};
- let active=false;
- function visibility(){document.querySelectorAll('[data-sepay-order]').forEach(button=>{button.hidden=!active;});}
+ let active=false,configLoaded=false,configFailed=false;
+ function visibility(){document.querySelectorAll('[data-sepay-order]').forEach(button=>{button.hidden=!active;});document.querySelectorAll('[data-sepay-availability]').forEach(node=>{const message=active?'Mã QR sẽ mở trên cổng SePay. Chỉ chuyển tiền một lần và chờ đối soát.':configFailed?'Chưa tải được kết nối thanh toán. Vui lòng tải lại trang.':configLoaded?'Thanh toán QR chưa được cửa hàng bật cho khách. Vui lòng liên hệ shop, không chuyển tiền qua đường dẫn lạ.':'Đang kiểm tra kết nối thanh toán…';if(node.textContent!==message)node.textContent=message;});}
  if(document.querySelector('.shop-main')){
-  fetch('/api/payments/config').then(r=>r.json()).then(c=>{active=c.onlineAvailable===true;visibility();}).catch(()=>{});
+  fetch('/api/payments/config').then(r=>{if(!r.ok)throw Error('config');return r.json();}).then(c=>{active=c.onlineAvailable===true;configLoaded=true;visibility();}).catch(()=>{configFailed=true;visibility();});
   new MutationObserver(visibility).observe(document.querySelector('.shop-main'),{childList:true,subtree:true});
  }
  async function request(url,data){const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(result.error||'Chưa xử lý được thanh toán');return result;}
