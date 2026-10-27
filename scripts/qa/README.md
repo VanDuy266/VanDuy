@@ -14,3 +14,11 @@ Bốn script tạo database tạm riêng, dùng dữ liệu giả có nhãn ki�
 - regressions: sắp xếp trang chủ/xe nổi bật, giá trước giảm, câu chuyện có quyền sử dụng, giỏ lưu với danh mục tải chậm.
 
 Ảnh kiểm chứng được cập nhật vào `docs/screenshots/`. Không gửi email, gọi điện, nhắn mạng xã hội hoặc giao dịch tiền thật trong các script này.
+
+## Thanh điều hướng admin
+
+```sh
+PLAYWRIGHT_MODULE=/duong-dan/toi/playwright CHROMIUM_PATH=/usr/bin/chromium node scripts/qa/sidebar.cjs
+```
+
+Dùng dữ liệu và mật khẩu thử tạm, không chạm website live. Kiểm tra đăng nhập/đăng xuất, số đơn/tư vấn thực từ API, tìm mục, thu gọn có lưu tùy chọn, drawer mobile, lớp nền, Escape, vòng focus, điều hướng, trạng thái mất kết nối và reduced motion. Ảnh kết quả ở `docs/screenshots/admin-sidebar-desktop.png` và `admin-sidebar-mobile.png`.
