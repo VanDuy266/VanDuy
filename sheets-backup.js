@@ -12,7 +12,22 @@ function createGoogleTransport(env=process.env,fetcher=fetch){
  return {
   async ensure(){const r=await call('?fields=sheets.properties');if(!r.sheets?.some(s=>s.properties?.title==='AppBackup')){if(env.GOOGLE_BACKUP_INITIALIZE!=='true')throw Error('Chưa có tab AppBackup. Chỉ bật GOOGLE_BACKUP_INITIALIZE=true trong lần thiết lập đầu tiên.');await call(':batchUpdate','POST',{requests:[{addSheet:{properties:{title:'AppBackup',gridProperties:{rowCount:1000,columnCount:2}}}}]});}},
   async read(){const r=await call('/values/'+encodeURIComponent('AppBackup!A:B'));return r.values||[];},
-  async write(rows){const result=await call('/values/'+encodeURIComponent('AppBackup!A1:B'+rows.length)+'?valueInputOption=RAW','PUT',{majorDimension:'ROWS',values:rows});if(result.updatedRows!==rows.length)throw Error('Google chưa xác nhận đủ dòng sao lưu.');}
+  async write(rows){const result=await call('/values/'+encodeURIComponent('AppBackup!A1:B'+rows.length)+'?valueInputOption=RAW','PUT',{majorDimension:'ROWS',values:rows});if(result.updatedRows!==rows.length)throw Error('Google chưa xác nhận đủ dòng sao lưu.');},
+  async writeViews(views){
+   const {VIEW_MARKER}=require('./sheets-views');
+   const metadata=await call('?fields=sheets.properties');const sheets=metadata.sheets||[];
+   const existing=views.filter(v=>sheets.some(s=>s.properties.title===v.title));
+   if(existing.length){const result=await call('/values:batchGet?'+existing.map(v=>'ranges='+encodeURIComponent("'"+v.title+"'!A1")).join('&'));for(let i=0;i<existing.length;i++)if(result.valueRanges?.[i]?.values?.[0]?.[0]!==VIEW_MARKER+existing[i].key)throw Error('Tab '+existing[i].title+' đã có dữ liệu khác; không ghi đè.');}
+   const used=new Set(sheets.map(s=>s.properties.sheetId)),requests=[];
+   for(const v of views){let properties=sheets.find(s=>s.properties.title===v.title)?.properties;const rowCount=Math.max(100,v.values.length+20),columnCount=Math.max(...v.values.map(r=>r.length));
+    if(!properties){let sheetId;do{sheetId=crypto.randomInt(1,2147483647);}while(used.has(sheetId));used.add(sheetId);properties={sheetId,title:v.title,gridProperties:{rowCount,columnCount}};requests.push({addSheet:{properties}});}
+    else if(properties.gridProperties.rowCount<rowCount||properties.gridProperties.columnCount<columnCount)requests.push({updateSheetProperties:{properties:{sheetId:properties.sheetId,gridProperties:{rowCount:Math.max(properties.gridProperties.rowCount,rowCount),columnCount:Math.max(properties.gridProperties.columnCount,columnCount)}},fields:'gridProperties.rowCount,gridProperties.columnCount'}});
+    const rows=v.values.map(row=>({values:row.map(value=>({userEnteredValue:typeof value==='number'?{numberValue:value}:{stringValue:String(value??'')}}))}));
+    // A full range clears stale trailing rows; stringValue never executes customer text as formulas.
+    requests.push({updateCells:{range:{sheetId:properties.sheetId},rows,fields:'userEnteredValue'}});
+   }
+   const payload={requests};if(Buffer.byteLength(JSON.stringify(payload))>2*1024*1024)throw Error('Các bảng dễ đọc vượt 2 MB; cần kho dữ liệu lớn hơn.');await call(':batchUpdate','POST',payload);
+  }
  };
 }
 function codec(secret){
@@ -24,10 +39,11 @@ function codec(secret){
  };
 }
 function createPersistence({transport,secret,file,allowEmpty=false}){
- const coding=codec(secret);let pending=Promise.resolve(),lastChanges=-1,lastStatus={enabled:true,synced:false,lastSavedAt:null,error:null};
+ const coding=codec(secret);let pending=Promise.resolve(),lastChanges=-1,lastStatus={enabled:true,synced:false,lastSavedAt:null,error:null,viewsSynced:false,viewsUpdatedAt:null,viewsError:null};
  return {
   async restore(){await transport.ensure();const bytes=coding.decode(await transport.read());if(!bytes){if(!allowEmpty)throw Error('Không có bản sao lưu để khôi phục. Chỉ cho phép khởi tạo Sheet trống trong lần thiết lập đầu tiên.');return false;}fs.mkdirSync(path.dirname(file),{recursive:true,mode:0o700});const temp=file+'.restore';try{fs.writeFileSync(temp,bytes,{mode:0o600});const check=new DatabaseSync(temp,{readOnly:true});try{if(check.prepare('PRAGMA integrity_check').get().integrity_check!=='ok')throw Error('Bản SQLite không toàn vẹn.');}finally{check.close();}fs.renameSync(temp,file);for(const suffix of ['-wal','-shm'])fs.rmSync(file+suffix,{force:true});}finally{fs.rmSync(temp,{force:true});}return true;},
-  flush(db){const run=async()=>{const changes=Number(db.prepare('SELECT total_changes() n').get().n);if(changes===lastChanges&&lastStatus.synced)return;const temp=file+'.backup-'+crypto.randomBytes(6).toString('hex');try{await backup(db,temp);const bytes=fs.readFileSync(temp);await transport.write(coding.encode(bytes));lastChanges=changes;lastStatus={enabled:true,synced:true,lastSavedAt:new Date().toISOString(),error:null};}catch{lastStatus={...lastStatus,synced:false,error:'Sao lưu Google Sheets thất bại. Kiểm tra quyền, kết nối và dung lượng.'};throw Error(lastStatus.error);}finally{fs.rmSync(temp,{force:true});}};const result=pending.then(run,run);pending=result.catch(()=>{});return result;},
+  flush(db){const run=async()=>{const changes=Number(db.prepare('SELECT total_changes() n').get().n);if(changes===lastChanges&&lastStatus.synced)return;const temp=file+'.backup-'+crypto.randomBytes(6).toString('hex');try{await backup(db,temp);const bytes=fs.readFileSync(temp);await transport.write(coding.encode(bytes));lastChanges=changes;lastStatus={...lastStatus,enabled:true,synced:true,lastSavedAt:new Date().toISOString(),error:null};
+ if(transport.writeViews){let viewDb;try{viewDb=new DatabaseSync(temp,{readOnly:true});const views=require('./sheets-views').readableViews(viewDb);await transport.writeViews(views);lastStatus={...lastStatus,viewsSynced:true,viewsUpdatedAt:new Date().toISOString(),viewsError:null};}catch{lastStatus={...lastStatus,viewsSynced:false,viewsError:'Bản sao lưu đã lưu, nhưng bảng dễ đọc chưa cập nhật. Kiểm tra quyền, tên tab và hạn mức Google.'};}finally{viewDb?.close();}}}catch{lastStatus={...lastStatus,synced:false,error:'Sao lưu Google Sheets thất bại. Kiểm tra quyền, kết nối và dung lượng.'};throw Error(lastStatus.error);}finally{fs.rmSync(temp,{force:true});}};const result=pending.then(run,run);pending=result.catch(()=>{});return result;},
   status(){return {...lastStatus};},
   attach(res,db){
    const persistence=this,originalEnd=res.end.bind(res),originalWrite=res.write.bind(res),originalHead=res.writeHead.bind(res),originalFlush=res.flushHeaders.bind(res);

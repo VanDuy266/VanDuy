@@ -83,3 +83,26 @@ npm test
 ```
 
 Có test website thật chạy child process với Google transport giả: tạo tài khoản và đơn, xóa toàn bộ thư mục data, restart và kiểm tra đăng nhập + đơn + catalog. Có test khóa sai/ảnh snapshot hỏng không ghi đè file cũ, lưu thất bại trả 503, streaming static bình thường và Google RAW API. Các test này không thay cho việc cấp quyền và thử Google Sheet live.
+
+## Các tab dễ đọc tự cập nhật
+
+Sau khi bật sao lưu, phiên bản mới tự tạo các tab riêng:
+
+- **Web_SanPham**: tên xe, giá, tồn kho, trạng thái hiển thị, đường dẫn ảnh, mô tả.
+- **Web_DonHang**: mã đơn, tên khách, điện thoại, địa chỉ, sản phẩm, tổng tiền, trạng thái.
+- **Web_TuVan**: khách, nội dung, thông tin tư vấn, ghi chú và phản hồi cửa hàng.
+- **Web_CaiDat**: các thông tin công khai của cửa hàng và chính sách.
+
+**Đây là bản xuất một chiều từ admin ra Sheet.** Sửa giá/nội dung trong admin và bấm lưu, không sửa ô Sheet để cập nhật website. Những sửa đổi tay trong các tab do website quản lý sẽ bị ghi đè ở lần đồng bộ tiếp theo. `AppBackup` vẫn là nguồn khôi phục; các tab dễ đọc không được dùng để khôi phục hoặc nhập dữ liệu.
+
+**Quyền riêng tư:** các tab đơn/tư vấn chứa dữ liệu khách hàng dạng đọc được, khác bản sao lưu mã hóa. Chỉ chia sẻ Sheet cho chủ cửa hàng, người được phép và service account; không bật công khai. Không xuất mật khẩu, hash mật khẩu, token phiên, mã reset hoặc khóa bí mật vào tab dễ đọc.
+
+Sau khi khôi phục bản sao lưu hoặc ghi dữ liệu mới, backend chụp SQLite rồi tạo bảng dễ đọc từ chính snapshot đó. Bản sao lưu được xác nhận trước; việc xuất bảng thất bại không biến đơn đã sao lưu thành lỗi lưu. Xem `/api/admin/storage`:
+
+- `synced:true`: bản mã hóa đã lưu thành công.
+- `viewsSynced:true`: các tab dễ đọc cũng cập nhật thành công.
+- `viewsError`: thông báo riêng nếu bảng dễ đọc chưa cập nhật; thử lại bằng lần lưu tiếp theo hoặc restart sau khi xử lý quyền/quota.
+
+Code kiểm tra dấu quản lý ở A1 trước khi sửa tab đã có. Nếu tab cùng tên chứa dữ liệu khác, **không ghi đè**; đổi tên tab thủ công đó để giữ dữ liệu, rồi lưu lại nội dung trong admin. Không xóa/sửa hàng đánh dấu trong tab hệ thống. Dòng 2 là tiêu đề, dữ liệu từ dòng 3.
+
+Các bảng được cập nhật bằng `stringValue`/`numberValue`, nên tên hoặc ghi chú khách bắt đầu bằng `=` được giữ là văn bản, không thực thi công thức. Cập nhật toàn vùng xóa các dòng cũ dư thừa. Không cắt im lặng bản xuất; vượt 2 MB thì báo `viewsError`, bản sao lưu vẫn có giới hạn riêng 1 MB nén. Chỉ hiện đường dẫn ảnh, không lưu file ảnh trong ô.
