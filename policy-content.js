@@ -1,62 +1,88 @@
 'use strict';
-function contact(store){return [store.name||'Xe Điện Đức Tú',store.address,store.phone?'Điện thoại: '+store.phone:'',store.secondaryPhone?'Điện thoại bổ sung: '+store.secondaryPhone:'',store.email?'Email hỗ trợ: '+store.email:''].filter(Boolean).join('\n');}
-function privacy(store){return `CHÍNH SÁCH QUYỀN RIÊNG TƯ
-Đơn vị vận hành và tiếp nhận yêu cầu:\n${contact(store)}
+function contact(store){return [store.name||'Xe Điện Đức Tú',store.address,store.phone?'Hotline: '+store.phone:'',store.secondaryPhone?'Hotline bổ sung: '+store.secondaryPhone:'',store.email?'Email hỗ trợ: '+store.email:''].filter(Boolean).join('\n');}
+function privacy(store){return `Xe Điện Đức Tú tôn trọng quyền riêng tư của bạn. Chính sách này giúp bạn hiểu những thông tin được thu thập khi sử dụng dịch vụ và cách liên hệ để quản lý thông tin của mình.
 
-1. Dữ liệu website xử lý
-Khi đăng ký bằng email: họ tên, email, mật khẩu đã băm và thời điểm tạo tài khoản. Website không lưu mật khẩu dạng rõ. Khi đăng nhập Google, Facebook hoặc Zalo: tên hiển thị và định danh do nhà cung cấp trả về để tạo/nhận diện tài khoản. Website không yêu cầu mật khẩu mạng xã hội của bạn và không lưu access token mạng xã hội trong database. Tài khoản email tự đăng ký hiện chưa có quy trình xác minh email.
-Khi đặt xe hoặc tư vấn: họ tên, số điện thoại, địa chỉ nhận xe, mẫu xe, số lượng, nội dung yêu cầu, trạng thái và lịch sử xử lý. Các chức năng hỗ trợ, đánh giá và bảo hành có thể lưu nội dung do bạn gửi cùng liên kết với tài khoản/đơn hàng. Website không có cổng thu tiền trực tuyến tự động và không yêu cầu số thẻ thanh toán.
+1. Thông tin chúng tôi thu thập
+Khi bạn tạo tài khoản, đặt xe hoặc yêu cầu tư vấn, chúng tôi tiếp nhận các thông tin bạn cung cấp như họ tên, email, số điện thoại, địa chỉ nhận xe và nội dung yêu cầu.
+Thông tin về mẫu xe, đơn hàng, thanh toán, giao nhận, bảo hành, đánh giá và trao đổi hỗ trợ được lưu để phục vụ bạn trong quá trình mua và sử dụng xe.
+Nếu chọn đăng nhập bằng Google, Facebook hoặc Zalo, chúng tôi nhận thông tin tài khoản được nhà cung cấp cho phép chia sẻ để nhận diện bạn. Đức Tú không yêu cầu bạn cung cấp mật khẩu của các tài khoản mạng xã hội này.
 
-2. Mục đích sử dụng
-Dữ liệu phục vụ đăng nhập, bảo vệ phiên truy cập, xử lý yêu cầu đặt xe/tư vấn, theo dõi đơn, hỗ trợ và bảo hành. Khi dùng email khôi phục mật khẩu, hệ thống tạo liên kết dùng một lần nếu cửa hàng đã cấu hình dịch vụ email. Không nhập mật khẩu hoặc thông tin thanh toán vào ô tư vấn/ghi chú.
+2. Mục đích sử dụng thông tin
+Thông tin của bạn được sử dụng để quản lý tài khoản; liên hệ xác nhận và xử lý đơn hàng; tư vấn sản phẩm; hỗ trợ thanh toán, giao nhận, bảo hành và giải quyết yêu cầu sau mua.
+Chúng tôi cũng sử dụng thông tin cần thiết để bảo vệ tài khoản, kiểm tra giao dịch và xử lý các trường hợp sử dụng dịch vụ không hợp lệ.
 
-3. Cookie và dữ liệu trên thiết bị
-Cookie cần thiết giữ phiên khách hàng, quản trị và xác thực đăng nhập. Giỏ hàng, yêu thích và một số lựa chọn được lưu trong bộ nhớ trình duyệt. Đăng xuất kết thúc phiên tương ứng, không tự xóa tài khoản hoặc đơn hàng đã lưu. Xóa dữ liệu trình duyệt chỉ xóa dữ liệu trên thiết bị đó.
+3. Chia sẻ và bảo vệ thông tin
+Thông tin chỉ được cung cấp cho nhân sự có trách nhiệm và các bên cung cấp dịch vụ liên quan trong phạm vi cần thiết để phục vụ bạn, như đăng nhập, thanh toán, giao nhận hoặc lưu trữ dữ liệu; hoặc khi có yêu cầu hợp pháp của cơ quan có thẩm quyền.
+Khi sử dụng dịch vụ của Google, Facebook, Zalo hoặc cổng thanh toán, bạn nên tham khảo thêm chính sách quyền riêng tư của nhà cung cấp đó.
+Hãy giữ kín mật khẩu và mã OTP. Không nhập thông tin thẻ, mật khẩu ngân hàng hoặc mã OTP vào nội dung tư vấn, ghi chú đơn hàng hay đánh giá sản phẩm.
 
-4. Lưu trữ và quyền truy cập
-Ứng dụng chạy trên Render. Khi bật sao lưu Google Sheets, database được nén và mã hóa bằng khóa do cửa hàng giữ trước khi ghi vào AppBackup. Các tab xuất dễ đọc của sản phẩm/đơn/tư vấn có thể chứa thông tin khách hàng dạng đọc được để chủ cửa hàng quản lý. Bảng phải được giới hạn chia sẻ cho người được phép và tài khoản dịch vụ. File ảnh/video tải lên ổ tạm Render không nằm trong bản sao lưu database này.
-Nhân sự được chủ cửa hàng phân quyền có thể tiếp cận dữ liệu để thực hiện công việc. Các nhà cung cấp đăng nhập, hạ tầng và email (nếu bật) có chính sách riêng. Khách được chuyển sang trang của nhà cung cấp để đồng ý đăng nhập. Thời gian lưu giữ tùy mục đích xử lý, giao dịch, bảo hành và nghĩa vụ liên quan; liên hệ cửa hàng để biết thời hạn áp dụng cho dữ liệu của bạn.
+4. Cookie và thông tin trên thiết bị
+Website sử dụng cookie để duy trì đăng nhập và hỗ trợ bảo vệ tài khoản. Giỏ hàng, danh sách yêu thích và một số lựa chọn của bạn có thể được ghi nhớ trên trình duyệt để thuận tiện khi mua sắm.
+Bạn có thể quản lý hoặc xóa các dữ liệu này trong cài đặt trình duyệt. Việc xóa có thể khiến bạn cần đăng nhập và chọn lại giỏ hàng. Đăng xuất không làm mất đơn hàng hoặc các yêu cầu đã gửi tới cửa hàng.
 
-5. Yêu cầu truy cập, sửa hoặc xóa
-Liên hệ theo thông tin đầu trang hoặc xem /chinh-sach/xoa-du-lieu. Cửa hàng cần xác minh quyền sở hữu tài khoản trước khi cung cấp hoặc xử lý dữ liệu. Không gửi mật khẩu, mã OTP hoặc access token. Việc gỡ kết nối ứng dụng trong Facebook/Google/Zalo không tự xóa bản dữ liệu đã được cửa hàng lưu.
+5. Thời gian lưu giữ
+Thông tin được lưu trong thời gian cần thiết để xử lý đơn hàng, hỗ trợ khách hàng, bảo hành, giải quyết khiếu nại và thực hiện nghĩa vụ lưu trữ liên quan. Bạn có thể liên hệ để được giải thích về việc lưu giữ thông tin của mình.
 
-6. Cập nhật
-Chính sách được đăng công khai trên website. Chủ cửa hàng chịu trách nhiệm duy trì thông tin liên hệ và cập nhật nội dung khi thay đổi cách xử lý dữ liệu.`;}
-function terms(store){return `ĐIỀU KHOẢN SỬ DỤNG WEBSITE
-Thông tin liên hệ:\n${contact(store)}
+6. Quyền của bạn
+Bạn có thể yêu cầu kiểm tra, chỉnh sửa, bổ sung hoặc xóa thông tin cá nhân; đề nghị ngừng việc sử dụng thông tin dựa trên sự đồng ý của mình; và phản ánh các vấn đề về quyền riêng tư.
+Để bảo vệ bạn, cửa hàng có thể cần xác minh người gửi yêu cầu trước khi cung cấp hoặc thay đổi thông tin. Một số dữ liệu liên quan đến giao dịch, bảo hành hoặc nghĩa vụ lưu trữ có thể cần được giữ lại; chúng tôi sẽ trao đổi với bạn về phạm vi xử lý.
+Để yêu cầu xóa tài khoản và thông tin liên quan, vui lòng xem mục Yêu cầu xóa dữ liệu trong phần chính sách hoặc liên hệ trực tiếp với cửa hàng.
 
-1. Phạm vi
-Website giới thiệu xe điện, phụ kiện và tiếp nhận yêu cầu tư vấn/đặt xe. Người dùng cần cung cấp thông tin chính xác và chỉ sử dụng tài khoản thuộc quyền kiểm soát của mình.
+7. Liên hệ về quyền riêng tư
+${contact(store)}
+Khi liên hệ, bạn chỉ cần cung cấp thông tin cần thiết để chúng tôi xác định tài khoản hoặc đơn hàng. Không gửi mật khẩu hay mã OTP.
 
-2. Giá, sản phẩm và đặt xe
-Giá hiển thị, cấu hình, phiên bản, màu và khả năng cung cấp cần được đối chiếu với cửa hàng trước khi xác nhận giao dịch. Gửi yêu cầu trên website không tự tạo hợp đồng mua bán hoặc xác nhận đã thanh toán. Giá tại thời điểm đặt được ghi lại trong đơn; việc đổi giá danh mục sau đó không tự đổi giá đơn cũ. Chương trình khuyến mãi áp dụng theo điều kiện và thời hạn được cửa hàng xác nhận.
+8. Cập nhật chính sách
+Các thay đổi về chính sách được công bố tại trang này để bạn thuận tiện theo dõi.`;}
+function terms(store){return `Chào mừng bạn đến với Xe Điện Đức Tú. Vui lòng tham khảo các điều khoản dưới đây khi tìm hiểu sản phẩm, đặt xe và sử dụng dịch vụ của cửa hàng.
 
-3. Thanh toán và giao nhận
-Website hiện chưa thu tiền trực tuyến tự động. Đặt cọc, trả góp, thanh toán và giao xe phải được cửa hàng xác nhận riêng; không chuyển tiền theo hướng dẫn từ bên mạo danh. Chính sách giao xe, đổi trả và bảo hành được công bố tại các trang tương ứng và cần đối chiếu với thỏa thuận mua bán thực tế.
+1. Thông tin sản phẩm và giá bán
+Thông tin trên website giúp bạn tham khảo và lựa chọn xe, phụ kiện phù hợp. Phiên bản, màu sắc, thông số, tình trạng cung cấp, giá bán và ưu đãi cụ thể được cửa hàng xác nhận trước khi giao dịch.
+Nếu có thông tin chưa rõ hoặc sai lệch, chúng tôi sẽ trao đổi lại với bạn trước khi xác nhận việc mua bán. Chi phí giao nhận và dịch vụ bổ sung, nếu có, được thông báo riêng.
 
-4. Tài khoản và nội dung
-Bảo vệ mật khẩu và phiên đăng nhập; không dùng website để truy cập dữ liệu người khác, gửi yêu cầu giả, mã độc hoặc nội dung vi phạm quyền của bên khác. Đánh giá và phản hồi cần phản ánh trải nghiệm thực tế. Thông báo cho cửa hàng nếu phát hiện truy cập tài khoản bất thường.
+2. Đặt xe và xác nhận đơn hàng
+Bạn vui lòng cung cấp đúng họ tên, số điện thoại, địa chỉ và nhu cầu mua xe để cửa hàng liên hệ. Sau khi gửi yêu cầu, hãy giữ mã đơn để theo dõi và nhận hỗ trợ.
+Việc gửi yêu cầu trên website chưa đồng nghĩa với việc đơn đã được cửa hàng xác nhận hoặc đã thanh toán. Cửa hàng sẽ xác nhận sản phẩm, giá, phương án thanh toán và giao nhận với bạn trước khi thực hiện.
 
-5. Khả dụng và hỗ trợ
-Hạ tầng miễn phí có thể khởi động chậm hoặc gián đoạn. Nếu yêu cầu bị lỗi, kiểm tra lịch sử/mã đơn trước khi gửi lại để tránh trùng. Liên hệ cửa hàng để được đối chiếu giao dịch. Khi có bất đồng, cung cấp mã đơn và thông tin liên hệ để cửa hàng tiếp nhận, không đăng công khai thông tin riêng tư của người khác.
+3. Thanh toán và đặt cọc
+Chỉ thanh toán theo phương thức và thông tin chính thức đã được cửa hàng xác nhận. Mức cọc, điều kiện hoàn hoặc hủy cọc cần được thống nhất trước khi bạn chuyển tiền.
+Nếu thanh toán trực tuyến, hãy làm theo hướng dẫn trên trang thanh toán được mở từ website. Trạng thái thanh toán được cập nhật sau khi giao dịch được kiểm tra, đối soát. Nếu đã chuyển tiền nhưng chưa thấy cập nhật, vui lòng giữ chứng từ và liên hệ cửa hàng trước khi thanh toán thêm.
+Nhu cầu mua trả góp cần được tư vấn và xác nhận điều kiện riêng; yêu cầu tư vấn không phải là hợp đồng tín dụng hay cam kết được duyệt hồ sơ.
 
-6. Quyền riêng tư
-Cách xử lý dữ liệu và yêu cầu xóa được trình bày tại /chinh-sach/bao-mat và /chinh-sach/xoa-du-lieu.`;}
-function deletion(store){return `HƯỚNG DẪN YÊU CẦU XÓA DỮ LIỆU
-Đầu mối tiếp nhận:\n${contact(store)}
+4. Giao nhận, đổi trả và bảo hành
+Thời gian, địa điểm và phí giao xe được xác nhận với bạn khi xử lý đơn. Khi nhận xe, vui lòng kiểm tra sản phẩm, phụ kiện và giấy tờ theo thỏa thuận.
+Điều kiện đổi trả và bảo hành áp dụng theo chính sách được công bố, chính sách của nhà sản xuất và thỏa thuận mua bán. Bạn có thể liên hệ cửa hàng để được hướng dẫn theo tình trạng xe và chứng từ liên quan.
 
-1. Gửi yêu cầu
-Liên hệ cửa hàng qua số điện thoại/email hỗ trợ công bố phía trên, hoặc vào trang /lien-he. Nêu rõ: “Yêu cầu xóa dữ liệu tài khoản”, kênh đăng nhập đã sử dụng (Facebook, Google, Zalo hoặc email), tên tài khoản và thông tin liên hệ để cửa hàng phản hồi. Có thể cung cấp mã đơn liên quan để đối chiếu. Không gửi mật khẩu, OTP, App Secret hoặc access token.
+5. Tài khoản và sử dụng dịch vụ
+Bạn có trách nhiệm giữ kín thông tin đăng nhập và cập nhật thông tin liên hệ chính xác. Hãy báo cửa hàng nếu nghi ngờ tài khoản bị người khác sử dụng.
+Vui lòng không gửi yêu cầu giả mạo, truy cập thông tin của người khác hoặc đăng nội dung vi phạm quyền riêng tư và quyền hợp pháp của bên khác. Đánh giá, phản hồi nên phản ánh trải nghiệm thực tế và sử dụng ngôn từ phù hợp.
 
-2. Xác minh và xử lý
-Cửa hàng tiếp nhận và cần xác minh bạn là người có quyền yêu cầu. Cửa hàng xem xét dữ liệu tài khoản, định danh đăng nhập và nội dung liên quan để xóa/ẩn danh khi phù hợp. Dữ liệu cần cho giao dịch, bảo hành, tranh chấp hoặc nghĩa vụ lưu trữ có thể phải giữ lại; cửa hàng sẽ trao đổi phạm vi xử lý và cách theo dõi kết quả qua kênh liên hệ đã xác minh. Website hiện chưa có nút xóa tài khoản tự động; không coi việc gửi yêu cầu là xác nhận dữ liệu đã bị xóa.
+6. Hỗ trợ và giải quyết yêu cầu
+Nếu cần sửa thông tin, thay đổi nhu cầu hoặc hủy đơn, bạn có thể sử dụng chức năng tương ứng trong tài khoản, tra cứu đơn hoặc liên hệ cửa hàng. Việc xử lý phụ thuộc trạng thái đơn và các khoản thanh toán đã thực hiện.
+Khi có lỗi hoặc chưa rõ kết quả gửi yêu cầu, hãy kiểm tra mã đơn và lịch sử trước khi gửi lại để tránh trùng đơn. Nếu cần đối chiếu, vui lòng cung cấp mã đơn, thông tin liên hệ và chứng từ liên quan.
+${contact(store)}
 
-3. Bản sao lưu và bản xuất
-Yêu cầu cần bao gồm dữ liệu trong hệ thống hoạt động, bảng xuất dễ đọc và bản sao lưu Google Sheets nếu đang bật. Sau khi xử lý, cửa hàng cần cập nhật bản sao lưu để tránh khôi phục lại dữ liệu đã xóa. Các bản sao, lịch sử phiên bản, ảnh/file được lưu ở nơi khác cần được xem xét riêng, không được khẳng định đã xóa chỉ vì tài khoản không còn hiển thị.
+7. Quyền riêng tư và chính sách liên quan
+Vui lòng tham khảo Chính sách quyền riêng tư, Yêu cầu xóa dữ liệu, chính sách giao xe, đổi trả và bảo hành để biết thêm thông tin áp dụng cho dịch vụ của bạn.`;}
+function deletion(store){return `Bạn có thể liên hệ Xe Điện Đức Tú để yêu cầu xóa tài khoản hoặc thông tin cá nhân đã cung cấp. Cửa hàng sẽ tiếp nhận, xác minh và trao đổi với bạn về phạm vi có thể xử lý.
 
-4. Gỡ quyền mạng xã hội
-Bạn có thể gỡ ứng dụng trong phần Ứng dụng và trang web của Facebook, kết nối bên thứ ba của Google hoặc mục ứng dụng được cấp quyền của Zalo. Thao tác đó thu hồi quyền tại nhà cung cấp; để xử lý dữ liệu đã lưu tại cửa hàng, vẫn cần gửi yêu cầu theo hướng dẫn trên.
+1. Cách gửi yêu cầu
+Liên hệ qua hotline, email hỗ trợ bên dưới hoặc kênh liên hệ chính thức của cửa hàng. Vui lòng nêu rõ “Yêu cầu xóa dữ liệu tài khoản”.
+${contact(store)}
 
-5. Theo dõi
-Giữ thông tin trao đổi và mã đơn/yêu cầu (nếu được cấp). Nếu chưa nhận phản hồi, liên hệ lại đầu mối công bố. Không đăng công khai thông tin xác minh tài khoản.`;}
+2. Thông tin cần cung cấp
+Cho biết tên tài khoản, email hoặc số điện thoại đã sử dụng, hình thức đăng nhập (email, Google, Facebook hoặc Zalo) và cách liên hệ để nhận phản hồi. Nếu yêu cầu liên quan đến giao dịch, bạn có thể cung cấp thêm mã đơn.
+Không gửi mật khẩu, mã OTP hoặc thông tin đăng nhập ngân hàng. Chỉ cung cấp các thông tin cần thiết khi trao đổi với kênh hỗ trợ chính thức.
+
+3. Xác minh và xử lý
+Cửa hàng có thể liên hệ để xác minh bạn là chủ tài khoản hoặc là người có quyền yêu cầu. Sau khi xác minh, chúng tôi sẽ xem xét việc xóa hoặc loại bỏ thông tin nhận diện cá nhân trong phạm vi phù hợp và trao đổi kết quả với bạn.
+Một số thông tin cần thiết cho đơn hàng đang xử lý, bảo hành, khiếu nại hoặc nghĩa vụ lưu trữ có thể cần được giữ lại. Nếu có trường hợp này, chúng tôi sẽ giải thích phạm vi và lý do liên quan.
+Việc gửi yêu cầu chưa đồng nghĩa với dữ liệu đã được xóa. Vui lòng theo dõi phản hồi từ cửa hàng để biết kết quả xử lý.
+
+4. Ngừng kết nối tài khoản mạng xã hội
+Bạn có thể thu hồi quyền truy cập của ứng dụng trong phần quản lý ứng dụng hoặc kết nối của Google, Facebook hoặc Zalo.
+Thu hồi quyền đăng nhập không tự xóa đơn hàng và thông tin đã cung cấp cho Đức Tú. Nếu muốn xử lý những thông tin này, vui lòng gửi yêu cầu tới cửa hàng theo hướng dẫn trên.
+
+5. Theo dõi yêu cầu
+Giữ lại nội dung trao đổi và mã yêu cầu nếu được cung cấp. Bạn có thể liên hệ lại hotline hoặc email hỗ trợ để hỏi về tiến độ; không đăng công khai thông tin xác minh tài khoản.`;}
 module.exports={privacy,terms,deletion};
