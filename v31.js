@@ -114,6 +114,6 @@ if(req.method==='GET')return send(db.prepare('SELECT * FROM v31_handover ORDER B
   }fail(405,'Phương thức không hỗ trợ');
  }
  function productChanged(old,p){audit('product-save',String(p.id));if(!old)return;for(const w of db.prepare('SELECT * FROM v31_watches WHERE product_id=?').all(p.id)){if(w.kind==='price'&&p.price<old.price||w.kind==='stock'&&old.stock===0&&p.stock>0)notice(w.customer_id,p.brand+' '+p.name+': '+(w.kind==='price'?'Giá vừa giảm':'Shop đã cập nhật có hàng'),'/xe/'+p.id);}}
- return{handle,orderExtras,recordOrder,notice,audit,quote,productChanged,presentation:()=>({featuredIds:config().featuredIds||[],homeOrder:config().homeOrder||[]})};
+ return{handle,orderExtras,recordOrder,notice,audit,quote,productChanged,presentation:()=>{const c=config();return{featuredIds:c.featuredIds||[],homeOrder:c.homeOrder||[],hours:c.hours||'',mapUrl:c.mapUrl||''};}};
 }
 module.exports={initializeV31};

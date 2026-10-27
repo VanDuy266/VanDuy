@@ -14,7 +14,7 @@ services:
       ZALO_APP_SECRET: ${ZALO_APP_SECRET:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       MAIL_FROM: ${MAIL_FROM:-}
-      STORE_NAME: Xe Điện Đức Tú
+      STORE_NAME: Cửa Hàng Xe Điện Phú Quốc | Xe Điện Đức Tú
     volumes:
       - store_data:/app/data
     expose:

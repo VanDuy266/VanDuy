@@ -65,7 +65,7 @@ if(!db.prepare("SELECT 1 FROM migrations WHERE name='yadea_verified_photos_v4'")
  }catch(error){db.exec('ROLLBACK');throw error;}
 }
 const mediaDir=path.join(dataDir,'media');fs.mkdirSync(mediaDir,{recursive:true,mode:0o700});
-const defaultSettings={name:process.env.STORE_NAME||'Xe Điện Đức Tú',phone:process.env.STORE_PHONE||'0326262859',secondaryPhone:'0866975540',address:process.env.STORE_ADDRESS||'Khu phố 6, phường Dương Đông, Phú Quốc',email:process.env.STORE_EMAIL||'',legalName:'',registration:'',shipping:'Thời gian và phí giao xe được xác nhận khi cửa hàng liên hệ.',returns:'Điều kiện đổi trả được xác nhận trong hợp đồng mua xe.',warranty:'Bảo hành theo chính sách chính thức của nhà sản xuất và hợp đồng mua xe.'};
+const defaultSettings={name:process.env.STORE_NAME||'Cửa Hàng Xe Điện Phú Quốc | Xe Điện Đức Tú',phone:process.env.STORE_PHONE||'0326262859',secondaryPhone:'0866975540',address:process.env.STORE_ADDRESS||'Khu phố 6, phường Dương Đông, Phú Quốc',email:process.env.STORE_EMAIL||'',legalName:'',registration:'',shipping:'Thời gian và phí giao xe được xác nhận khi cửa hàng liên hệ.',returns:'Điều kiện đổi trả được xác nhận trong hợp đồng mua xe.',warranty:'Bảo hành theo chính sách chính thức của nhà sản xuất và hợp đồng mua xe.'};
 db.prepare('INSERT OR IGNORE INTO settings VALUES(1,?)').run(JSON.stringify(defaultSettings));
 if(!db.prepare("SELECT 1 FROM migrations WHERE name='duc_tu_contact_v3'").get()){
  const current=JSON.parse(db.prepare('SELECT value FROM settings WHERE id=1').get().value);
@@ -76,6 +76,10 @@ if(!db.prepare("SELECT 1 FROM migrations WHERE name='duc_tu_contact_v3'").get())
 }
 if(!db.prepare("SELECT 1 FROM migrations WHERE name='yadea_extended_v5'").get()){
  const models=require('./catalog/new-models.json');db.exec('BEGIN IMMEDIATE');try{for(const m of models){if(db.prepare('SELECT 1 FROM products WHERE lower(brand)=? AND lower(name)=?').get('yadea',m.name.toLowerCase()))continue;db.prepare('INSERT INTO products(brand,name,price,range,speed,badge,hue,published,image,description,category,price_note,image_source,specifications) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run('Yadea',m.name,m.price,m.range,m.speed,'Mẫu mới YADEA',0,1,m.image,m.description,m.category,'Giá tham khảo hãng, shop xác nhận giá bán và phiên bản trước khi nhận mua.',m.source,JSON.stringify(m.specifications));}db.prepare('INSERT INTO migrations VALUES(?)').run('yadea_extended_v5');db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}
+}
+// Apply the shop's requested public name once; retain all configured contacts.
+if(!db.prepare("SELECT 1 FROM migrations WHERE name='duc_tu_public_name_v31'").get()){
+ db.exec('BEGIN IMMEDIATE');try{const store=JSON.parse(db.prepare('SELECT value FROM settings WHERE id=1').get().value);store.name='Cửa Hàng Xe Điện Phú Quốc | Xe Điện Đức Tú';db.prepare('UPDATE settings SET value=? WHERE id=1').run(JSON.stringify(store));db.prepare('INSERT INTO migrations VALUES(?)').run('duc_tu_public_name_v31');db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}
 }
 const settings=()=>({zaloUrl:'',facebookUrl:'',messengerUrl:'',tiktokUrl:'',depositAmount:0,depositPolicy:'Mức cọc và điều kiện hoàn/hủy được cửa hàng xác nhận trước khi thu tiền.',installmentPolicy:'Chưa có đơn vị tài chính và chính sách được xác nhận. Tiếp nhận nhu cầu tư vấn trả góp, không duyệt hồ sơ trực tuyến.',...JSON.parse(db.prepare('SELECT value FROM settings WHERE id=1').get().value)});
 const ready=()=>{const s=settings();return !!(s.phone&&s.address);};
