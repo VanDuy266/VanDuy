@@ -49,3 +49,5 @@ test('offsetting manual receipt and refund still require review',async()=>{
 });
 
 test('customer COD and installment orders cannot start online payment',()=>{const f=setup();try{for(const plan of ['cod','installment']){f.db.prepare('UPDATE orders SET payment_plan=?').run(plan);assert.throws(()=>f.api.start('V-1'),{status:409});}assert.equal(f.db.prepare('SELECT COUNT(*) n FROM sepay_attempts').get().n,0);}finally{f.db.close();}});
+
+test('new online and deposit orders can pay before confirmation; verified payment leaves delivery state unchanged',async()=>{for(const plan of ['online','deposit']){const f=setup();try{f.db.prepare("UPDATE orders SET status='new',payment_plan=?,deposit_due=?").run(plan,plan==='deposit'?20000:null);const a=f.api.start('V-1',plan==='deposit'?'deposit':'balance');assert.equal(a.fields.amount,plan==='deposit'?20000:100000);f.respond(a.invoice,{order_amount:a.fields.amount});assert.equal((await f.api.verify(a.invoice)).status,'paid');assert.equal(f.order().status,'new');assert.equal(paymentSummary(f.db,f.order()).received,a.fields.amount);}finally{f.db.close();}}});
