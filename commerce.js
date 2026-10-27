@@ -1,5 +1,5 @@
 'use strict';
-// Payment records are staff-entered receipts/refunds. They are never gateway confirmations.
+// Ledger entries are staff receipts/refunds or authenticated bank-reconciliation receipts; QR generation never creates one.
 function initializeCommerce(db) {
   const additions={payment_plan:"TEXT NOT NULL DEFAULT 'cod'",deposit_due:'INTEGER',finance_months:'INTEGER'};
   for(const [column,definition]of Object.entries(additions)){
@@ -10,11 +10,12 @@ function initializeCommerce(db) {
     amount INTEGER NOT NULL CHECK(amount>0),kind TEXT NOT NULL CHECK(kind IN ('receipt','refund')),
     reference TEXT NOT NULL,note TEXT NOT NULL,request_key TEXT UNIQUE NOT NULL,created_at TEXT NOT NULL
   );`);
+  require('./bank-transfers').initializeTransfers(db);
 }
 function paymentSummary(db,order) {
-  const rows=db.prepare('SELECT amount,kind FROM payment_records WHERE order_id=?').all(order.id);
+  const rows=db.prepare("SELECT amount,kind,EXISTS(SELECT 1 FROM bank_payment_events e WHERE e.payment_record_id=payment_records.id AND e.status='matched') automated FROM payment_records WHERE order_id=?").all(order.id);
   const received=rows.reduce((sum,row)=>sum+(row.kind==='receipt'?row.amount:-row.amount),0);
-  return {received,remaining:order.total-received,status:received===0?'unpaid':received>=order.total?'paid':'partial',source:rows.length?'staff_record':'none'};
+  return {received,remaining:order.total-received,status:received===0?'unpaid':received>=order.total?'paid':'partial',source:!rows.length?'none':rows.every(r=>r.automated)?'bank_webhook':rows.every(r=>!r.automated)?'staff_record':'mixed'};
 }
 function validateSocial(key,value) {
   if(!value)return '';
