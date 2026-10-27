@@ -7,7 +7,7 @@ const config={merchantId:'SP-TEST-example',secretKey:'test-secret-not-real',site
 test('checkout uses sandbox, signs SDK field order and never returns the secret',()=>{
  const result=createGateway(config).checkout({invoiceNumber:'DT_123',amount:10000});
  assert.equal(result.url,'https://pay-sandbox.sepay.vn/v1/checkout/init');
- const canonical='payment_method=BANK_TRANSFER,order_invoice_number=DT_123,order_amount=10000,currency=VND,order_description=Thanh toan don hang DT_123,success_url=https://store.example/tai-khoan?payment=return,error_url=https://store.example/tai-khoan?payment=error,cancel_url=https://store.example/tai-khoan?payment=cancel,merchant=SP-TEST-example,operation=PURCHASE';
+ const canonical='payment_method=BANK_TRANSFER,order_invoice_number=DT_123,order_amount=10000,currency=VND,order_description=Thanh toan don hang DT_123,success_url=https://store.example/thanh-toan/ket-qua?invoice=DT_123,error_url=https://store.example/thanh-toan/ket-qua?invoice=DT_123,cancel_url=https://store.example/thanh-toan/ket-qua?invoice=DT_123,merchant=SP-TEST-example,operation=PURCHASE';
  assert.equal(result.fields.signature,crypto.createHmac('sha256',config.secretKey).update(canonical).digest('base64'));
  assert.ok(!JSON.stringify(result).includes(config.secretKey));
  assert.equal(result.fields.expires_at,undefined); // No undocumented expiry parameter.

@@ -1,26 +1,11 @@
-# Kế hoạch kết nối thanh toán
+# Thanh toán
 
-## Trạng thái hiện tại
+Website có sổ thu/hoàn tiền thủ công và kết nối Cổng thanh toán SePay có thể bật bằng cấu hình. Xem [hướng dẫn SePay](SEPAY-GATEWAY.md) để thiết lập sandbox, sao chép URL IPN và kiểm tra trước khi dùng môi trường thật.
 
-Website có tiếp nhận đơn, chọn nhu cầu COD/đặt cọc/trả góp và sổ ghi nhận thu/hoàn tiền có kiểm soát. **Chưa có cổng thanh toán online được kích hoạt.** Chủ cửa hàng cho biết chưa có tài khoản merchant VNPAY/ZaloPay. Chưa nhận được thông tin ngân hàng để cấu hình QR chuyển khoản. Không có giao dịch tiền thật hoặc thử cổng live trong công việc này.
+Khách thanh toán chuyển khoản qua SePay sau khi đơn được shop xác nhận. Mã đơn và số tiền do server tính. IPN được bảo vệ bằng token và phải tra cứu lại SePay thành công trước khi ghi khoản thu. Trang chuyển về từ cổng và nút kiểm tra không phải bằng chứng đã nhận tiền. Giao dịch sandbox không thay đổi tiền thật.
 
-## Các phương thức
+Đơn thay đổi/hủy hoặc có khoản thu thủ công trong lúc chờ thanh toán phải được chủ shop đối soát. Khoản thu không tự đánh dấu đã giao xe. Hoàn tiền vẫn do shop thực hiện, kiểm tra và ghi sổ theo chứng từ; web không tự hoàn qua cổng. Không có hạn QR 15 phút theo yêu cầu hiện tại.
 
-| Phương thức | Cần chuẩn bị | Khi nào ghi nhận đã thanh toán |
-| --- | --- | --- |
-| QR ngân hàng/VietQR | Ngân hàng, số tài khoản, tên chủ tài khoản chính xác, loại khoản thu/mức cọc | Đối soát ngân hàng hoặc callback hợp lệ từ dịch vụ đối soát; tạo/quét QR không phải bằng chứng chuyển tiền |
-| VNPAY | Merchant, môi trường sandbox/production, mã đơn vị và khóa ký do cổng cấp | IPN/backend xác minh chữ ký, đúng mã đơn, tiền, trạng thái và chống ghi nhận trùng |
-| ZaloPay | Merchant và App ID/key thanh toán riêng do ZaloPay cấp | Callback đã xác minh MAC và dữ liệu giao dịch |
-| Visa/Mastercard | Cổng thanh toán có bật thanh toán thẻ quốc tế cho merchant | Kết quả xác minh từ cổng, không dựa riêng vào redirect trình duyệt |
+VNPAY, ZaloPay và thẻ Visa/Mastercard chưa tích hợp. Zalo Login App ID/Secret không phải khóa thanh toán ZaloPay. Không nhập thông tin thẻ/CVV tại website cửa hàng.
 
-Zalo Login App ID/Secret **không phải** thông tin ZaloPay merchant. Không đưa khóa cổng vào Sheet, GitHub, app điện thoại hoặc chat. Visa được nhập trên trang/SDK của cổng đủ điều kiện, không lưu số thẻ/CVV tại website cửa hàng.
-
-## Trình tự tiếp theo
-
-1. Chủ cửa hàng cung cấp dữ liệu ngân hàng nhận tiền, xác nhận trước khi công khai QR. Không cần gửi mật khẩu, OTP hoặc dữ liệu đăng nhập ngân hàng.
-2. Tích hợp QR theo đúng số tiền server tính cho đơn đã được xác nhận, kèm nội dung chuyển khoản riêng; giữ trạng thái chờ đối soát.
-3. Đăng ký merchant, lấy sandbox và tài liệu đang áp dụng từ từng cổng. Hoàn tất kiểm thử trước khi bật production.
-4. Xử lý thanh toán lặp, sai số tiền, đơn hủy, timeout, đối soát và hoàn tiền bằng sổ giao dịch. Không tự đổi trạng thái đã trả tiền chỉ vì khách bấm “đã chuyển” hoặc trang trả về success.
-5. Bổ sung thông tin giao dịch vào backup Google Sheets hiện có. File biên nhận/ảnh tải lên vẫn cần kho media bền vững riêng.
-
-Không thêm nút thanh toán giả hoặc thông tin ngân hàng mẫu vào luồng khách. Chưa có thời điểm phát hành thanh toán thật vì còn thiếu cấu hình ngân hàng/merchant.
+Đích nhận tiền của cổng được cấu hình và kiểm tra trong tài khoản SePay. Không đưa khóa bí mật vào Sheet, GitHub, ứng dụng điện thoại hoặc chat. SQLite chứa đơn, phiên SePay và sổ thu vẫn được sao lưu qua Google Sheets nếu đã bật và hoạt động. Tệp ảnh/biên nhận cần kho media bền vững riêng.

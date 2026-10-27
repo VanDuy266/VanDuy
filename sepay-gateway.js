@@ -1,5 +1,5 @@
 'use strict';
-// Gateway preparation only: not wired to the storefront until IPN and expiry are verified.
+// Checkout signing and authenticated order queries follow the official SePay SDK.
 const crypto = require('node:crypto');
 const SIGNED_FIELDS = new Set(['merchant','env','operation','payment_method','order_amount','currency','order_invoice_number','order_description','customer_id','agreement_id','agreement_name','agreement_type','agreement_payment_frequency','agreement_amount_per_payment','success_url','error_url','cancel_url','order_id']);
 function createGateway({env='sandbox',merchantId,secretKey,siteUrl,fetchImpl=fetch}={}) {
@@ -15,7 +15,7 @@ function createGateway({env='sandbox',merchantId,secretKey,siteUrl,fetchImpl=fet
     invoice(invoiceNumber);
     if(!Number.isSafeInteger(amount)||amount<=0||amount>1000000000)throw Error('Invalid payment amount');
     // Preserve insertion order: the official SDK signs fields in this order.
-    const fields={payment_method:'BANK_TRANSFER',order_invoice_number:invoiceNumber,order_amount:amount,currency:'VND',order_description:'Thanh toan don hang '+invoiceNumber,success_url:site.origin+'/tai-khoan?payment=return',error_url:site.origin+'/tai-khoan?payment=error',cancel_url:site.origin+'/tai-khoan?payment=cancel',merchant:merchantId,operation:'PURCHASE'};
+    const fields={payment_method:'BANK_TRANSFER',order_invoice_number:invoiceNumber,order_amount:amount,currency:'VND',order_description:'Thanh toan don hang '+invoiceNumber,success_url:site.origin+'/thanh-toan/ket-qua?invoice='+encodeURIComponent(invoiceNumber),error_url:site.origin+'/thanh-toan/ket-qua?invoice='+encodeURIComponent(invoiceNumber),cancel_url:site.origin+'/thanh-toan/ket-qua?invoice='+encodeURIComponent(invoiceNumber),merchant:merchantId,operation:'PURCHASE'};
     const message=Object.keys(fields).filter(key=>SIGNED_FIELDS.has(key)&&fields[key]!==undefined).map(key=>key+'='+(fields[key]??'')).join(',');
     return {url:checkoutURL,fields:{...fields,signature:crypto.createHmac('sha256',secretKey).update(message).digest('base64')}};
   }

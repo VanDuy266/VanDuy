@@ -1,5 +1,5 @@
 'use strict';
-// Payment records are staff-entered receipts/refunds. They are never gateway confirmations.
+// Manual receipts/refunds and independently verified SePay receipts share the ledger.
 function initializeCommerce(db) {
   const additions={payment_plan:"TEXT NOT NULL DEFAULT 'cod'",deposit_due:'INTEGER',finance_months:'INTEGER'};
   for(const [column,definition]of Object.entries(additions)){
@@ -12,9 +12,10 @@ function initializeCommerce(db) {
   );`);
 }
 function paymentSummary(db,order) {
-  const rows=db.prepare('SELECT amount,kind FROM payment_records WHERE order_id=?').all(order.id);
+  const rows=db.prepare('SELECT amount,kind,request_key FROM payment_records WHERE order_id=?').all(order.id);
+  const gateway=rows.some(r=>r.request_key.startsWith('sepay-pg:')),manual=rows.some(r=>!r.request_key.startsWith('sepay-pg:'));
   const received=rows.reduce((sum,row)=>sum+(row.kind==='receipt'?row.amount:-row.amount),0);
-  return {received,remaining:order.total-received,status:received===0?'unpaid':received>=order.total?'paid':'partial',source:rows.length?'staff_record':'none'};
+  return {received,remaining:order.total-received,status:received===0?'unpaid':received>=order.total?'paid':'partial',source:gateway?(manual?'mixed':'sepay_verified'):rows.length?'staff_record':'none'};
 }
 function validateSocial(key,value) {
   if(!value)return '';
